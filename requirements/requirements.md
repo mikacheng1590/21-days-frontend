@@ -1,5 +1,5 @@
 # Project Overview
-An app for people to build habit. Users can create a habit (it's called "project" in the app), and set a target day of doing it (21-31 days). Under each project, user can input entry daily (it's called "entry" in the app). There can be 1-3 days off, but if user input entry for a number of days off (user cam set the number of days off in the project), the project will be over. Whenever user misses a day. an email will be sent to user to remind them to get back on track.
+An app with RWD for people to build habit. Users can create a habit (it's called "project" in the app), and set a target day of doing it (21-31 days). Under each project, user can input entry daily (it's called "entry" in the app). There can be 1-3 days off, but if user input entry for a number of days off (user cam set the number of days off in the project), the project will be over. Whenever user misses a day. an email will be sent to user to remind them to get back on track.
 
 # Core Functionalities
 1. Only logged in user can access the app
