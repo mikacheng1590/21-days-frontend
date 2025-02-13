@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 export default function ErrorPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-md w-full space-y-8 text-center">
+      <div className="max-w-xl w-full space-y-8 text-center">
         <div className="space-y-4">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
             Oops! Something went wrong

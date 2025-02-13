@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
+import { toast } from 'react-toastify'
+import Link from 'next/link'
 
 type FormData = {
   email: string
@@ -18,7 +20,7 @@ export function AuthForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const router = useRouter()
-  const { register, handleSubmit } = useForm<FormData>()
+  const { register, handleSubmit, reset } = useForm<FormData>()
 
   const onSubmit = async (data: FormData) => {
     setIsLoading(true)
@@ -28,13 +30,34 @@ export function AuthForm() {
           email: data.email,
           password: data.password,
         })
-        if (error) throw error
+
+        if (error) {
+          if (error.code === 'invalid_credentials') {
+            toast.error('Invalid email or password')
+          } else if (error.code === 'email_not_confirmed') {
+            toast.warning('Please verify your email address')
+          } else {
+            toast.error('Failed to sign in')
+          }
+          throw error
+        }
       } else {
         const { error } = await supabase.auth.signUp({
           email: data.email,
           password: data.password,
         })
-        if (error) throw error
+        if (error) {
+          const errorCode = error.code ?? 'unknown_error'
+          const errors = ['email_already_exists', 'user_already_exists']
+          if (errors.includes(errorCode)) {
+            toast.error('Email already registered')
+          } else {
+            toast.error('Failed to sign up')
+          }
+          throw error
+        }
+        toast.success('Verification email sent! Please check your inbox')
+        reset()
       }
       router.refresh()
     } catch (error) {
@@ -45,13 +68,20 @@ export function AuthForm() {
   }
 
   const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
-    if (error) console.error(error)
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+      if (error) {
+        toast.error('Failed to sign in with Google')
+        throw error
+      }
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   return (
@@ -72,24 +102,35 @@ export function AuthForm() {
         </Button>
       </form>
 
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full"
-        onClick={handleGoogleLogin}
-      >
-        Continue with Google
-      </Button>
-
-      <p className="text-center">
-        {mode === 'signin' ? "Don't have an account? " : "Already have an account? "}
-        <button
-          className="text-blue-500 hover:underline"
-          onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+      <div className="text-center space-y-4">
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={handleGoogleLogin}
         >
-          {mode === 'signin' ? 'Sign Up' : 'Sign In'}
-        </button>
-      </p>
+          Continue with Google
+        </Button>
+
+        <div className="flex flex-col space-y-2 text-sm">
+          <Link 
+            href="/auth/forgot-password"
+            className="text-blue-500 hover:underline"
+          >
+            Forgot Password?
+          </Link>
+          
+          <p>
+            {mode === 'signin' ? "Don't have an account? " : "Already have an account? "}
+            <button
+              className="text-blue-500 hover:underline"
+              onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+            >
+              {mode === 'signin' ? 'Sign Up' : 'Sign In'}
+            </button>
+          </p>
+        </div>
+      </div>
     </div>
   )
 } 

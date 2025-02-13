@@ -13,7 +13,8 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - auth (authentication routes)
+     * - error (error page)
      */
-    '/((?!_next/static|_next/image|favicon.ico|auth|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|auth|error|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
