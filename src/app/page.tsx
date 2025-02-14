@@ -1,13 +1,11 @@
-import { createClient } from '@/lib/supabase/server'
-import { AuthForm } from '@/components/auth/AuthForm'
 import { redirect } from 'next/navigation'
+import { AuthForm } from '@/components/auth/AuthForm'
+import { getUsername } from '@/lib/supabase/server/auth'
 
 export default async function Home() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (user) {
-    redirect(`/private`)
+  const username = await getUsername()
+  if (username) {
+    redirect(`/${username}/projects`)
   }
 
   return (

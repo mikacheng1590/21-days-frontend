@@ -1,25 +1,24 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client/client'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 type FormData = {
   email: string
   password: string
 }
 
-const supabase = createClient()
-
 export function AuthForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const router = useRouter()
+  const supabase = createClient()
   const { register, handleSubmit, reset } = useForm<FormData>()
 
   const onSubmit = async (data: FormData) => {

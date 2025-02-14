@@ -1,0 +1,131 @@
+'use client'
+
+import { useForm } from 'react-hook-form'
+import { useRouter } from 'next/navigation'
+import { toast } from 'react-toastify'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client/client'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { ERROR_CODE_USERNAME_ALREADY_EXISTS, TABLE_USERS_SETTING } from '@/lib/supabase/constants'
+import { useAuth } from '@/components/providers/AuthProvider'
+
+type FormData = {
+  email: string
+  username: string
+}
+
+export default function Welcome() {
+  const { user } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+  const supabase = createClient()
+  
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+    setValue
+  } = useForm<FormData>({
+    mode: 'onChange'
+  })
+
+  useEffect(() => {
+    if (user && user.email) {
+      setValue('email', user.email)
+    }
+  }, [user, setValue])
+
+  const onSubmit = async (data: FormData) => {
+    if (!user) return
+
+    setIsLoading(true)
+    
+    try {
+      const { error } = await supabase
+        .from(TABLE_USERS_SETTING)
+        .insert([
+          {
+            user_id: user.id,
+            preferred_email: data.email,
+            username: data.username,
+          }
+        ])
+
+      if (error) throw error
+
+      toast.success('Settings saved successfully!')
+      router.push(`/${data.username}/projects`)
+    } catch (error: any) {
+      console.error(error)
+
+      if (error?.code === ERROR_CODE_USERNAME_ALREADY_EXISTS) {
+        toast.error('Username already exists. Please choose another username.')
+      } else {
+        toast.error('Failed to save settings')
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Welcome to 21 Days</h1>
+          <p className="text-muted-foreground mt-2">
+            Please complete your profile to continue
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Email</label>
+            <Input
+              type="email"
+              {...register('email', {
+                required: 'Email is required',
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: 'Invalid email address'
+                }
+              })}
+            />
+            {errors.email && (
+              <p className="text-sm text-red-500">{errors.email.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Username</label>
+            <Input
+              {...register('username', {
+                required: 'Username is required',
+                minLength: {
+                  value: 3,
+                  message: 'Username must be at least 3 characters'
+                },
+                pattern: {
+                  value: /^[a-zA-Z0-9\-]+$/,
+                  message: 'Username can only contain letters, numbers and dashes'
+                }
+              })}
+            />
+            {errors.username && (
+              <p className="text-sm text-red-500">{errors.username.message}</p>
+            )}
+          </div>
+
+          <Button 
+            type="submit" 
+            className="w-full"
+            disabled={!isValid || isLoading}
+          >
+            Save Settings
+          </Button>
+        </form>
+      </div>
+    </div>
+  )
+}

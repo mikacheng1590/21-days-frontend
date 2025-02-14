@@ -9,12 +9,16 @@ An app with RWD for people to build habit. Users can create a habit (it's called
 5. When user input entry for a number of days off, the project will be over.
 
 # URL Structure
-1. / login signup page for non-logged in user OR redirect user to /{username} for logged in user
-2. /{username} dashboard page
-3. /{username}/projects page for projects
-4. /{username}/project/create page for creating a project (only logged in user can access)
-5. /{username}/project/:id page for viewing a project which shows the list of entries
-6. /{username}/entry/:id page for viewing the entry details
+1. /                    - login/signup or redirect to /{username}
+2. /welcome             - new user setup
+3. /{username}/projects - list all projects (could be private/public)
+4. /{username}/projects/new     - create project
+5. /{username}/projects/:id     - view project (could be private/public)
+6. /{username}/projects/:id/edit - edit project
+7. /{username}/projects/:id/entries     - list entries (could be private/public)
+9. /{username}/projects/:id/entries/new - create entry
+10. /{username}/projects/:id/entries/:entryId      - view entry (could be private/public)
+11. /{username}/projects/:id/entries/:entryId/edit - edit entry
 
 # Libraries
 1. React
