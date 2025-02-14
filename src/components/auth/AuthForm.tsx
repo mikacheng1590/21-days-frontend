@@ -19,16 +19,23 @@ export function AuthForm() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const router = useRouter()
   const supabase = createClient()
-  const { register, handleSubmit, reset } = useForm<FormData>()
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isValid }
+  } = useForm<FormData>({
+    mode: 'onChange'
+  })
 
   const onSubmit = async (data: FormData) => {
+    if (isLoading) return
+
     setIsLoading(true)
+
     try {
       if (mode === 'signin') {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: data.email,
-          password: data.password,
-        })
+        const { error } = await supabase.auth.signInWithPassword(data)
 
         if (error) {
           if (error.code === 'invalid_credentials') {
@@ -41,14 +48,12 @@ export function AuthForm() {
           throw error
         }
       } else {
-        const { error } = await supabase.auth.signUp({
-          email: data.email,
-          password: data.password,
-        })
+        const { error } = await supabase.auth.signUp(data)
+
         if (error) {
           const errorCode = error.code ?? 'unknown_error'
-          const errors = ['email_already_exists', 'user_already_exists']
-          if (errors.includes(errorCode)) {
+
+          if (['email_already_exists', 'user_already_exists'].includes(errorCode)) {
             toast.error('Email already registered')
           } else {
             toast.error('Failed to sign up')
@@ -56,8 +61,9 @@ export function AuthForm() {
           throw error
         }
         toast.success('Verification email sent! Please check your inbox')
-        reset()
       }
+      
+      reset()
       router.refresh()
     } catch (error) {
       console.error(error)
@@ -86,17 +92,51 @@ export function AuthForm() {
   return (
     <div className="space-y-6 w-full max-w-md">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <Input
-          type="email"
-          placeholder="Email"
-          {...register('email', { required: true })}
-        />
-        <Input
-          type="password"
-          placeholder="Password"
-          {...register('password', { required: true })}
-        />
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <div className="space-y-2">
+          <Input
+            type="email"
+            placeholder="Email"
+            {...register('email', {
+              required: 'Email is required',
+              ...(mode === 'signup' && {
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: 'Invalid email address'
+                }
+              })
+            })}
+            aria-invalid={errors.email ? 'true' : 'false'}
+          />
+          {errors.email && (
+            <p className="text-sm text-red-500">{errors.email.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Input
+            type="password"
+            placeholder="Password"
+            {...register('password', {
+              required: 'Password is required',
+              ...(mode === 'signup' && {
+                minLength: {
+                  value: 6,
+                  message: 'Password must be at least 6 characters'
+                }
+              })
+            })}
+            aria-invalid={errors.password ? 'true' : 'false'}
+          />
+          {errors.password && (
+            <p className="text-sm text-red-500">{errors.password.message}</p>
+          )}
+        </div>
+
+        <Button 
+          type="submit" 
+          className="w-full" 
+          disabled={!isValid || isLoading}
+        >
           {mode === 'signin' ? 'Sign In' : 'Sign Up'}
         </Button>
       </form>

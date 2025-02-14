@@ -43,3 +43,6 @@ next-env.d.ts
 
 # requirements
 requirements/schema.md
+
+# .cursor
+.cursor/*
