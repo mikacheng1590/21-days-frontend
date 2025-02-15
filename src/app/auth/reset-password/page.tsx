@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { AuthError } from '@supabase/supabase-js'
+import { SUPABASE_AUTH_ERROR_SAME_PASSWORD } from '@/lib/supabase/constants'
 
 type FormData = {
   password: string
@@ -16,7 +18,17 @@ type FormData = {
 export default function ResetPassword() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const { register, handleSubmit, watch } = useForm<FormData>()
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors, isValid }
+  } = useForm<FormData>({
+    mode: 'onChange'
+  })
+  
+  const password = watch('password')
   const supabase = createClient()
 
   useEffect(() => {
@@ -28,19 +40,16 @@ export default function ResetPassword() {
   }, [router])
 
   const onSubmit = async (data: FormData) => {
-    if (data.password !== data.confirmPassword) {
-      toast.error('Passwords do not match')
-      return
-    }
-
+    if (isLoading) return
+    
     setIsLoading(true)
+
     try {
       const { error } = await supabase.auth.updateUser({
         password: data.password
       })
 
       if (error) {
-        toast.error('Failed to update password')
         throw error
       }
 
@@ -48,7 +57,11 @@ export default function ResetPassword() {
       router.push('/')
     } catch (error) {
       console.error(error)
+
+      const errMsg = error instanceof AuthError && error.code === SUPABASE_AUTH_ERROR_SAME_PASSWORD ? error.message : 'Failed to update password'
+      toast.error(errMsg)
     } finally {
+      reset()
       setIsLoading(false)
     }
   }
@@ -64,17 +77,47 @@ export default function ResetPassword() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <Input
-            type="password"
-            placeholder="New Password"
-            {...register('password', { required: true, minLength: 6 })}
-          />
-          <Input
-            type="password"
-            placeholder="Confirm New Password"
-            {...register('confirmPassword', { required: true })}
-          />
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <div className="space-y-2">
+            <Input
+              type="password"
+              placeholder="New Password"
+              {...register('password', {
+                required: 'Password is required',
+                minLength: {
+                  value: 6,
+                  message: 'Password must be at least 6 characters'
+                }
+              })}
+              aria-invalid={errors.password ? 'true' : 'false'}
+              aria-describedby={errors.password ? 'passwordError' : undefined}
+            />
+            {errors.password && (
+              <p className="text-sm text-red-500">{errors.password.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Input
+              type="password"
+              placeholder="Confirm New Password"
+              {...register('confirmPassword', {
+                required: 'Please confirm your password',
+                validate: (value) => 
+                  value === password || 'Passwords do not match'
+              })}
+              aria-invalid={errors.confirmPassword ? 'true' : 'false'}
+              aria-describedby={errors.confirmPassword ? 'confirmPasswordError' : undefined}
+            />
+            {errors.confirmPassword && (
+              <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
+            )}
+          </div>
+
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={!isValid || isLoading}
+          >
             Update Password
           </Button>
         </form>

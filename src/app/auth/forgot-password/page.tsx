@@ -14,11 +14,21 @@ type FormData = {
 export default function ForgotPassword() {
   const [isLoading, setIsLoading] = useState(false)
   const [isEmailSent, setIsEmailSent] = useState(false)
-  const { register, handleSubmit } = useForm<FormData>()
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isValid }
+  } = useForm<FormData>({
+    mode: 'onSubmit'
+  })
   const supabase = createClient()
 
   const onSubmit = async (data: FormData) => {
+    if (isLoading) return
+    
     setIsLoading(true)
+
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
         redirectTo: `${window.location.origin}/auth/reset-password`,
@@ -26,6 +36,7 @@ export default function ForgotPassword() {
       
       if (error) throw error
       
+      reset()
       setIsEmailSent(true)
     } catch (error) {
       console.error(error)
@@ -50,9 +61,24 @@ export default function ForgotPassword() {
               <Input
                 type="email"
                 placeholder="Email"
-                {...register('email', { required: true })}
+                {...register('email', {
+                  required: 'Email is required',
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Invalid email address'
+                  }
+                })}
+                aria-invalid={errors.email ? 'true' : 'false'}
+                aria-describedby={errors.email ? 'email-error' : undefined}
               />
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              {errors.email && (
+                <p className="text-sm text-red-500">{errors.email.message}</p>
+              )}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={!isValid || isLoading}
+              >
                 Send Reset Link
               </Button>
             </form>

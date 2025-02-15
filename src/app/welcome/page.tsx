@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ERROR_CODE_USERNAME_ALREADY_EXISTS, TABLE_USERS_SETTING } from '@/lib/supabase/constants'
+import { SUPABASE_DB_ERROR_DUPLICATE_KEY, TABLE_USERS_SETTING } from '@/lib/supabase/constants'
 import { useAuth } from '@/components/providers/AuthProvider'
 
 type FormData = {
@@ -25,9 +25,10 @@ export default function Welcome() {
     register,
     handleSubmit,
     formState: { errors, isValid },
-    setValue
+    setValue,
+    reset
   } = useForm<FormData>({
-    mode: 'onChange'
+    mode: 'onSubmit'
   })
 
   useEffect(() => {
@@ -37,7 +38,7 @@ export default function Welcome() {
   }, [user, setValue])
 
   const onSubmit = async (data: FormData) => {
-    if (!user) return
+    if (!user || isLoading) return
 
     setIsLoading(true)
     
@@ -54,16 +55,14 @@ export default function Welcome() {
 
       if (error) throw error
 
+      reset()
       toast.success('Settings saved successfully!')
       router.push(`/${data.username}/projects`)
     } catch (error: any) {
       console.error(error)
 
-      if (error?.code === ERROR_CODE_USERNAME_ALREADY_EXISTS) {
-        toast.error('Username already exists. Please choose another username.')
-      } else {
-        toast.error('Failed to save settings')
-      }
+      const errMsg = error?.code === SUPABASE_DB_ERROR_DUPLICATE_KEY ? 'Username already exists. Please choose another username.' : 'Failed to save settings'
+      toast.error(errMsg)
     } finally {
       setIsLoading(false)
     }
@@ -91,6 +90,8 @@ export default function Welcome() {
                   message: 'Invalid email address'
                 }
               })}
+              aria-invalid={errors.email ? 'true' : 'false'}
+              aria-describedby={errors.email ? 'email-error' : undefined}
             />
             {errors.email && (
               <p className="text-sm text-red-500">{errors.email.message}</p>
@@ -111,6 +112,8 @@ export default function Welcome() {
                   message: 'Username can only contain letters, numbers and dashes'
                 }
               })}
+              aria-invalid={errors.username ? 'true' : 'false'}
+              aria-describedby={errors.username ? 'username-error' : undefined}
             />
             {errors.username && (
               <p className="text-sm text-red-500">{errors.username.message}</p>

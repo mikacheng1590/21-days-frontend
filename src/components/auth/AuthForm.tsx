@@ -8,6 +8,8 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { AuthError } from '@supabase/supabase-js'
+import { SUPABASE_AUTH_ERROR_INVALID_CREDENTIALS, SUPABASE_AUTH_ERROR_EMAIL_NOT_CONFIRMED, SUPABASE_AUTH_ERROR_USER_ALREADY_EXISTS, SUPABASE_AUTH_ERROR_EMAIL_ALREADY_EXISTS } from '@/lib/supabase/constants'
 
 type FormData = {
   email: string
@@ -25,7 +27,7 @@ export function AuthForm() {
     reset,
     formState: { errors, isValid }
   } = useForm<FormData>({
-    mode: 'onChange'
+    mode: 'onSubmit'
   })
 
   const onSubmit = async (data: FormData) => {
@@ -38,36 +40,46 @@ export function AuthForm() {
         const { error } = await supabase.auth.signInWithPassword(data)
 
         if (error) {
-          if (error.code === 'invalid_credentials') {
-            toast.error('Invalid email or password')
-          } else if (error.code === 'email_not_confirmed') {
-            toast.warning('Please verify your email address')
-          } else {
-            toast.error('Failed to sign in')
-          }
           throw error
         }
       } else {
         const { error } = await supabase.auth.signUp(data)
 
         if (error) {
-          const errorCode = error.code ?? 'unknown_error'
-
-          if (['email_already_exists', 'user_already_exists'].includes(errorCode)) {
-            toast.error('Email already registered')
-          } else {
-            toast.error('Failed to sign up')
-          }
           throw error
         }
+
         toast.success('Verification email sent! Please check your inbox')
       }
       
-      reset()
       router.refresh()
     } catch (error) {
       console.error(error)
+      let errMsg = 'Something went wrong. Please try again later.'
+
+      if (error instanceof AuthError) {
+        switch (error.code) {
+          case SUPABASE_AUTH_ERROR_INVALID_CREDENTIALS:
+            errMsg = 'Invalid email or password'
+            break
+          case SUPABASE_AUTH_ERROR_EMAIL_NOT_CONFIRMED:
+            errMsg = 'Please verify your email address'
+            break
+          case SUPABASE_AUTH_ERROR_USER_ALREADY_EXISTS:
+            errMsg = 'User already exists'
+            break
+          case SUPABASE_AUTH_ERROR_EMAIL_ALREADY_EXISTS:
+            errMsg = 'Email already exists'
+            break
+          default:
+            errMsg = 'Something went wrong. Please try again later.'
+            break
+        }
+      }
+
+      toast.error(errMsg)
     } finally {
+      reset()
       setIsLoading(false)
     }
   }
@@ -80,12 +92,13 @@ export function AuthForm() {
           redirectTo: `${window.location.origin}/auth/callback`,
         },
       })
+      
       if (error) {
-        toast.error('Failed to sign in with Google')
         throw error
       }
     } catch (error) {
       console.error(error)
+      toast.error('Failed to sign in with Google')
     }
   }
 
@@ -106,6 +119,7 @@ export function AuthForm() {
               })
             })}
             aria-invalid={errors.email ? 'true' : 'false'}
+            aria-describedby={errors.email ? 'email-error' : undefined}
           />
           {errors.email && (
             <p className="text-sm text-red-500">{errors.email.message}</p>
@@ -126,6 +140,7 @@ export function AuthForm() {
               })
             })}
             aria-invalid={errors.password ? 'true' : 'false'}
+            aria-describedby={errors.password ? 'password-error' : undefined}
           />
           {errors.password && (
             <p className="text-sm text-red-500">{errors.password.message}</p>
