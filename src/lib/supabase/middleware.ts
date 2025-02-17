@@ -1,5 +1,6 @@
-import { createClient } from '@/lib/supabase/server/client'
 import { NextResponse, type NextRequest } from 'next/server'
+import { createClient } from '@/lib/supabase/server/client'
+import { getUsernameByUserId } from '@/lib/supabase/server/auth'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -18,36 +19,39 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  const needEditAccessPathNames = ['/new', '/edit']
+  const url = request.nextUrl.clone()
+
   // protect routes that are only accessible to logged in users
   if (
     !user &&
     request.nextUrl.pathname !== '/' &&
     !request.nextUrl.pathname.startsWith('/auth') &&
     (
-      request.nextUrl.pathname.endsWith('/new') ||
-      request.nextUrl.pathname.endsWith('/edit') ||
+      needEditAccessPathNames.filter(path => request.nextUrl.pathname.endsWith(path)).length > 0 ||
       request.nextUrl.pathname === '/welcome'
     )
   ) {
     // no user, potentially respond by redirecting the user to the login page
-    const url = request.nextUrl.clone()
     url.pathname = '/'
     return NextResponse.redirect(url)
   }
 
-  if (user && request.nextUrl.pathname !== '/welcome') {
-    // check if user has set up setting
-    const { data: userSetting, error } = await supabase
-      .from('users_setting')
-      .select('*')
-      .eq('user_id', user.id)
-      .single()
+  if (user) {
+    const username = await getUsernameByUserId(user.id)
 
-    if (!userSetting) {
-      const url = request.nextUrl.clone()
+    // check if user has set up setting
+    if (request.nextUrl.pathname !== '/welcome' && !username) {
       url.pathname = '/welcome'
       return NextResponse.redirect(url)
     }
+
+    // redirect to projects page if user is logged in and has set up setting
+    if (request.nextUrl.pathname === '/' && username) {
+      url.pathname = `/${username}/projects`
+      return NextResponse.redirect(url)
+    }
+    
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.

@@ -42,7 +42,7 @@ yarn-error.log*
 next-env.d.ts
 
 # requirements
-requirements/schema.md
+documentation/schema.md
 
 # .cursor
 .cursor/*
