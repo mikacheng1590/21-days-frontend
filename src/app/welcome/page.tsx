@@ -90,6 +90,7 @@ export default function Welcome() {
                   message: 'Invalid email address'
                 }
               })}
+              disabled={isLoading}
               aria-invalid={errors.email ? 'true' : 'false'}
               aria-describedby={errors.email ? 'email-error' : undefined}
             />
@@ -112,6 +113,7 @@ export default function Welcome() {
                   message: 'Username can only contain letters, numbers and dashes'
                 }
               })}
+              disabled={isLoading}
               aria-invalid={errors.username ? 'true' : 'false'}
               aria-describedby={errors.username ? 'username-error' : undefined}
             />

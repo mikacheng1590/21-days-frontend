@@ -88,6 +88,7 @@ export default function ResetPassword() {
                   message: 'Password must be at least 6 characters'
                 }
               })}
+              disabled={isLoading}
               aria-invalid={errors.password ? 'true' : 'false'}
               aria-describedby={errors.password ? 'passwordError' : undefined}
             />
@@ -105,6 +106,7 @@ export default function ResetPassword() {
                 validate: (value) => 
                   value === password || 'Passwords do not match'
               })}
+              disabled={isLoading}
               aria-invalid={errors.confirmPassword ? 'true' : 'false'}
               aria-describedby={errors.confirmPassword ? 'confirmPasswordError' : undefined}
             />

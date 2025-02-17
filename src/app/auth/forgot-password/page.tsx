@@ -68,6 +68,7 @@ export default function ForgotPassword() {
                     message: 'Invalid email address'
                   }
                 })}
+                disabled={isLoading}
                 aria-invalid={errors.email ? 'true' : 'false'}
                 aria-describedby={errors.email ? 'email-error' : undefined}
               />

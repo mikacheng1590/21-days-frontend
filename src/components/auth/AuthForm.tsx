@@ -24,7 +24,7 @@ export function AuthForm() {
   const {
     register,
     handleSubmit,
-    reset,
+    resetField,
     formState: { errors, isValid }
   } = useForm<FormData>({
     mode: 'onSubmit'
@@ -78,8 +78,8 @@ export function AuthForm() {
       }
 
       toast.error(errMsg)
+      resetField('password')
     } finally {
-      reset()
       setIsLoading(false)
     }
   }
@@ -118,6 +118,7 @@ export function AuthForm() {
                 }
               })
             })}
+            disabled={isLoading}
             aria-invalid={errors.email ? 'true' : 'false'}
             aria-describedby={errors.email ? 'email-error' : undefined}
           />
@@ -139,6 +140,7 @@ export function AuthForm() {
                 }
               })
             })}
+            disabled={isLoading}
             aria-invalid={errors.password ? 'true' : 'false'}
             aria-describedby={errors.password ? 'password-error' : undefined}
           />
