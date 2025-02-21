@@ -23,7 +23,6 @@ export default function NotFound() {
 
         <Link href="/" className="block">
           <Button 
-            variant="default" 
             size="lg"
             className="w-full sm:w-auto"
           >

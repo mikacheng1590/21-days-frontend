@@ -80,7 +80,7 @@ export function Navbar() {
           {/* Mobile menu button - Always visible */}
           <div className="flex items-center sm:hidden">
             <Button
-              variant="ghost"
+              variant="neutral"
               size="icon"
               onClick={() => setIsOpen(!isOpen)}
               className="inline-flex items-center justify-center"

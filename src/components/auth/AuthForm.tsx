@@ -161,7 +161,7 @@ export function AuthForm() {
       <div className="text-center space-y-4">
         <Button
           type="button"
-          variant="outline"
+          variant="neutral"
           className="w-full"
           onClick={handleGoogleLogin}
         >

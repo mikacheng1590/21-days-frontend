@@ -15,7 +15,7 @@ export function LogoutButton() {
 
   return (
     <Button 
-      variant="outline" 
+      variant="neutral" 
       onClick={handleLogout}
       aria-label="Sign out"
     >
