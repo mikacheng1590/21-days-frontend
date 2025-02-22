@@ -1,4 +1,6 @@
+import Link from 'next/link'
 import { isPageOwner } from "@/lib/supabase/server/auth"
+import { Button } from '@/components/ui/button'
 
 export default async function ProjectsPage({
   params,
@@ -16,6 +18,11 @@ export default async function ProjectsPage({
           {isOwner &&
             <h1 className="text-2xl font-bold">Private Page for {username}</h1>
           }
+          {isOwner && (
+            <Link href={`/${username}/projects/new`}>
+              <Button>Add New Project</Button>
+            </Link>
+          )}
         </div>
       </div>
     </div>

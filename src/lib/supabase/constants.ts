@@ -9,3 +9,7 @@ export const SUPABASE_AUTH_ERROR_EMAIL_NOT_CONFIRMED = 'email_not_confirmed'
 export const SUPABASE_AUTH_ERROR_USER_ALREADY_EXISTS = 'user_already_exists'
 export const SUPABASE_AUTH_ERROR_EMAIL_ALREADY_EXISTS = 'email_already_exists'
 export const SUPABASE_AUTH_ERROR_SAME_PASSWORD = 'same_password'
+
+export const PROJECT_STATUS_ACTIVE = 'active'
+export const PROJECT_STATUS_EXPIRED = 'expired'
+export const PROJECT_STATUS_COMPLETED = 'completed'
