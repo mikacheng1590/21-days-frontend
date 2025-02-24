@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
+import Link from "next/link"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -9,6 +10,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  RowData,
   SortingState,
   useReactTable,
   VisibilityState,
@@ -37,6 +39,12 @@ import {
 } from "@/components/ui/table"
 import { createClient } from "@/lib/supabase/client/client"
 import { TABLE_PROJECTS } from "@/lib/supabase/constants"
+
+declare module '@tanstack/table-core' {
+  interface TableMeta<TData extends RowData> {
+    username: string
+  }
+}
 
 export const columns: ColumnDef<Project>[] = [
   {
@@ -75,7 +83,13 @@ export const columns: ColumnDef<Project>[] = [
         </Button>
       )
     },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("title")}</div>,
+    cell: ({ row, table }) => {
+      return (
+        <div className="lowercase hover:underline">
+          <Link href={`/${table.options.meta?.username}/projects/${row.original.id}`}>{row.getValue("title")}</Link>
+        </div>
+      )
+    },
   },
   {
     accessorKey: "progress",
@@ -141,9 +155,9 @@ export const columns: ColumnDef<Project>[] = [
 ]
 
 export default function ProjectsTable({
-  userId
+  userSetting
 }: {
-  userId: string
+  userSetting: UserSetting
 }) {
   const [data, setData] = useState<Project[]>([])
   const [sorting, setSorting] = useState<SortingState>([])
@@ -174,7 +188,7 @@ export default function ProjectsTable({
         let query = supabase
           .from(TABLE_PROJECTS)
           .select('id, title, completed_days, target_days, status, created_at')
-          .eq('user_id', userId)
+          .eq('user_id', userSetting.user_id)
 
         if (column && sortOrder) {
           query = query.order(column, { ascending: sortOrder === 'asc' })
@@ -196,7 +210,7 @@ export default function ProjectsTable({
         setIsLoading(false)
       }
     }, 500),
-    [userId, totalCount, pageSize, isLoading, setData, setIsLoading]
+    [userSetting.user_id, totalCount, pageSize, isLoading, setData, setIsLoading]
   )
 
   const fetchCount = useCallback(async () => {
@@ -205,14 +219,14 @@ export default function ProjectsTable({
       const { error, count } = await supabase
       .from(TABLE_PROJECTS)
       .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
+      .eq('user_id', userSetting.user_id)
 
       if (error) throw error
       setTotalCount(count)
     } catch(e) {
       console.error(e)
     }
-  }, [userId, setTotalCount])
+  }, [userSetting.user_id, setTotalCount])
 
   const setTableState = useCallback(() => {
     if (isLoading) {
@@ -246,6 +260,9 @@ export default function ProjectsTable({
 
   const table = useReactTable({
     data,
+    meta: {
+      username: userSetting.username
+    },
     columns,
     pageCount: totalCount ? Math.ceil(totalCount / pageSize) : -1,
     state: {

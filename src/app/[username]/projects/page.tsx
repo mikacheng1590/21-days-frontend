@@ -32,7 +32,7 @@ export default async function ProjectsPage({
             </Link>
           )}
         </div>
-        <ProjectsTable userId={userSetting.user_id} />
+        <ProjectsTable userSetting={userSetting} />
       </div>
     </div>
   )
