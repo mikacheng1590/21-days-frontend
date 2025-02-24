@@ -85,7 +85,7 @@ export const columns: ColumnDef<Project>[] = [
     },
     cell: ({ row, table }) => {
       return (
-        <div className="lowercase hover:underline">
+        <div className="hover:underline">
           <Link href={`/${table.options.meta?.username}/projects/${row.original.id}`}>{row.getValue("title")}</Link>
         </div>
       )
