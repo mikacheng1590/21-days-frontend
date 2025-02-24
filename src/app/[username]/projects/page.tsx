@@ -1,6 +1,8 @@
 import Link from 'next/link'
-import { isPageOwner } from "@/lib/supabase/server/auth"
+import { notFound } from "next/navigation"
+import { isPageOwner, getUserSettingByUsername } from "@/lib/supabase/server/auth"
 import { Button } from '@/components/ui/button'
+import ProjectsTable from '@/components/ui/projects-table'
 
 export default async function ProjectsPage({
   params,
@@ -8,6 +10,12 @@ export default async function ProjectsPage({
   params: { username: string }
 }) {
   const { username } = await params
+
+  const userSetting = await getUserSettingByUsername(username)
+  if (!userSetting) {
+    notFound()
+  }
+  
   const isOwner = await isPageOwner(username)
   
   return (
@@ -24,6 +32,7 @@ export default async function ProjectsPage({
             </Link>
           )}
         </div>
+        <ProjectsTable userId={userSetting.user_id} />
       </div>
     </div>
   )

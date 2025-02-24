@@ -34,7 +34,7 @@ export default function NewForm() {
     mode: 'onSubmit',
     defaultValues: {
       numberOfDays: 21,
-      allowedSkips: 1
+      allowedSkips: 0
     }
   })
 
@@ -58,9 +58,10 @@ export default function NewForm() {
             title: data.title,
             description: data.description,
             user_id: user.id,
-            no_of_days: data.numberOfDays,
+            target_days: data.numberOfDays,
             allow_skipped_days: data.allowedSkips,
-            status: PROJECT_STATUS_ACTIVE
+            status: PROJECT_STATUS_ACTIVE,
+            completed_days: 0
           }
         ])
       
@@ -128,13 +129,13 @@ export default function NewForm() {
           <Slider
             value={[watch('allowedSkips')]}
             onValueChange={(value) => setValue('allowedSkips', value[0])}
-            min={1}
+            min={0}
             max={3}
             step={1}
             className="neo-brutalism-slider"
           />
           <p className="text-sm text-muted-foreground text-center">
-            {watch('allowedSkips')} {watch('allowedSkips') === 1 ? 'day' : 'days'}
+            {watch('allowedSkips')} {[0, 1].includes(watch('allowedSkips')) ? 'day' : 'days'}
           </p>
         </div>
       </div>
