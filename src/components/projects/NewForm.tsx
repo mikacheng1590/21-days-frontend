@@ -1,7 +1,7 @@
 'use client'
 
 import { useForm } from 'react-hook-form'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
 import { Button } from '@/components/ui/button'
@@ -38,7 +38,7 @@ export default function NewForm() {
     }
   })
 
-  const onSubmit = async (data: FormData) => {
+  const handleFormSubmit = useCallback(async (data: FormData) => {
     if (isLoading) return
     setIsLoading(true)
 
@@ -76,6 +76,10 @@ export default function NewForm() {
     } finally {
       setIsLoading(false)
     }
+  }, [isLoading, setIsLoading, user, toast, router, reset])
+
+  const onSubmit = async (data: FormData) => {
+    handleFormSubmit(data)
   }
 
   return (

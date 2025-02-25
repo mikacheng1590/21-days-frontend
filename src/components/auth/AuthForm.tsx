@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
@@ -30,7 +30,7 @@ export function AuthForm() {
     mode: 'onSubmit'
   })
 
-  const onSubmit = async (data: FormData) => {
+  const handleEmailAuth = useCallback(async (data: FormData) => {
     if (isLoading) return
 
     setIsLoading(true)
@@ -82,9 +82,13 @@ export function AuthForm() {
     } finally {
       setIsLoading(false)
     }
+  }, [isLoading, setIsLoading, resetField, mode, setMode, supabase, router])
+
+  const onSubmit = async (data: FormData) => {
+    handleEmailAuth(data)
   }
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = useCallback(async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -100,7 +104,7 @@ export function AuthForm() {
       console.error(error)
       toast.error('Failed to sign in with Google')
     }
-  }
+  }, [supabase])
 
   return (
     <div className="space-y-6 w-full max-w-md">
