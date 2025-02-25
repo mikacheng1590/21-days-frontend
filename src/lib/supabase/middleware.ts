@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server/client'
 import { getUsernameByUserId } from '@/lib/supabase/server/auth'
 
-export async function updateSession(request: NextRequest) {
+export const updateSession = async (request: NextRequest) => {
   let supabaseResponse = NextResponse.next({
     request,
   })

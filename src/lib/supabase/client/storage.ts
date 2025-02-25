@@ -2,15 +2,15 @@ import { v4 as uuidv4 } from 'uuid';
 import imageCompression from 'browser-image-compression';
 import { createClient } from '@/lib/supabase/client/client';
 
-const getStorage = () => {
-  const { storage } = createClient();
-  return storage;
-}
-
 type UploadProps = {
   file: File;
   bucket?: string;
   folder?: string;
+}
+
+const getStorage = () => {
+  const { storage } = createClient();
+  return storage;
 }
 
 export const uploadImage = async ({ file, bucket = '21-days', folder }: UploadProps) => {
