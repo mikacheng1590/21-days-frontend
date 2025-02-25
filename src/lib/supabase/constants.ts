@@ -1,6 +1,7 @@
 export const TABLE_USERS_SETTING = 'users_setting'
 export const TABLE_PROJECTS = 'projects'
 export const TABLE_ENTRIES = 'entries'
+export const TABLE_ENTRIES_IMAGES = 'entries_images'
 
 export const SUPABASE_DB_ERROR_DUPLICATE_KEY = '23505'
 

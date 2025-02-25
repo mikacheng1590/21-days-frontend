@@ -1,11 +1,17 @@
 import NewForm from "@/components/entries/NewForm"
+import { isUserHaveProject } from "@/lib/supabase/server/db"
+import { redirect } from "next/navigation"
 
 export default async function NewEntryPage({
   params
 }: { params: { projectId: number } })
 {
   const { projectId } = await params
-  // TODO: check if project exists AND is active
+  // check if project exists AND is active
+  const isHaveProject = await isUserHaveProject(projectId)
+  if (!isHaveProject) {
+    redirect('/error')
+  }
   
   return (
     <div className="min-h-screen p-4">

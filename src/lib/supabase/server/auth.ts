@@ -1,12 +1,18 @@
 import { createClient } from '@/lib/supabase/server/client'
 import { TABLE_USERS_SETTING } from '@/lib/supabase/constants'
 
-export const getUsernameByUser = async (): Promise<string | null> => {
+export const getUser = async () => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
+  return !user ? null : user
+}
+
+export const getUsernameByUser = async (): Promise<string | null> => {
+  const user = await getUser()
   if (!user) return null
 
+  const supabase = await createClient()
   const { data: userData } = await supabase
     .from(TABLE_USERS_SETTING)
     .select('username')

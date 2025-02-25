@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server/client'
-import { getUsernameByUserId } from '@/lib/supabase/server/auth'
+import { getUser, getUsernameByUserId } from '@/lib/supabase/server/auth'
 
 export const updateSession = async (request: NextRequest) => {
   let supabaseResponse = NextResponse.next({
@@ -15,9 +15,7 @@ export const updateSession = async (request: NextRequest) => {
 
   // IMPORTANT: DO NOT REMOVE auth.getUser()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
 
   const needEditAccessPathNames = ['/new', '/edit']
   const url = request.nextUrl.clone()
