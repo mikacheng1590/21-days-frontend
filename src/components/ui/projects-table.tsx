@@ -292,8 +292,6 @@ export default function ProjectsTable({
 
 /*
 TODO:
-- pagination
-- see if possible to add loading state (e.g. row opacity 0.5)
 - `filter titles`: change it to search function
 */
 

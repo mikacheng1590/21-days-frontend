@@ -5,6 +5,7 @@ export default async function NewEntryPage({
 }: { params: { projectId: number } })
 {
   const { projectId } = await params
+  // TODO: check if project exists AND is active
   
   return (
     <div className="min-h-screen p-4">
