@@ -28,7 +28,11 @@ export default async function ProjectsPage({
           }
           {isOwner && (
             <Link href={`/${username}/projects/new`}>
-              <Button>Add New Project</Button>
+              <Button
+                type="button"
+              >
+                Add New Project
+              </Button>
             </Link>
           )}
         </div>

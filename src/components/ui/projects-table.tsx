@@ -204,8 +204,8 @@ export default function ProjectsTable({
         
         if (error) throw error
         if (data) setData(data)
-      } catch (e) {
-        console.error(e)
+      } catch (error) {
+        console.error(error)
       } finally {
         setIsLoading(false)
       }
@@ -223,8 +223,8 @@ export default function ProjectsTable({
 
       if (error) throw error
       setTotalCount(count)
-    } catch(e) {
-      console.error(e)
+    } catch(error) {
+      console.error(error)
     }
   }, [userSetting.user_id, setTotalCount])
 

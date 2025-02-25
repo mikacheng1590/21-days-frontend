@@ -13,3 +13,5 @@ export const SUPABASE_AUTH_ERROR_SAME_PASSWORD = 'same_password'
 export const PROJECT_STATUS_ACTIVE = 'active'
 export const PROJECT_STATUS_EXPIRED = 'expired'
 export const PROJECT_STATUS_COMPLETED = 'completed'
+
+export const INSERT_ENTRY_WITH_IMAGES_FUNCTION = 'insert_entry_with_images'
