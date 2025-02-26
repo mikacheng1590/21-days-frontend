@@ -10,17 +10,22 @@ import { convertBlobUrlToFile } from "@/lib/image/utils"
 import { uploadImage } from "@/lib/supabase/client/storage"
 import { createClient } from "@/lib/supabase/client/client"
 import { INSERT_ENTRY_WITH_IMAGES_FUNCTION } from "@/lib/supabase/constants"
+import { getActiveProjectLatestEntry } from "@/lib/supabase/client/db"
 
 type FormData = {
   description: string
   images: string[]
 }
 
-export default function NewForm({
-  projectId
-}: {
+type NewFormProps = {
   projectId: number
-}) {
+  todayDay: number
+}
+
+export default function NewForm({
+  projectId,
+  todayDay,
+}: NewFormProps) {
   const imageInputRef = useRef<HTMLInputElement>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const {
@@ -67,6 +72,16 @@ export default function NewForm({
     setIsLoading(true)
 
     try {
+      const latestEntry = await getActiveProjectLatestEntry(projectId)
+      if (!latestEntry) {
+        throw new Error('User/ project not found')
+      }
+
+      const latestEntryDay = latestEntry.entries.length ? latestEntry.entries[0].day : 0
+      if (todayDay - latestEntryDay !== 1) {
+        throw new Error('Something wrong with the day. Please refresh the page.')
+      }
+
       const { images, description } = formData
       // upload images to supabase storage
       let imageUrls = []
@@ -83,9 +98,10 @@ export default function NewForm({
 
       const supabase = createClient()
       const { data, error } = await supabase.rpc(INSERT_ENTRY_WITH_IMAGES_FUNCTION, {
-        project_id: projectId,
+        project_id: Number(projectId),
         entry_description: description,
         image_urls: imageUrls,
+        today_day: todayDay
       })
 
       if (error) throw error

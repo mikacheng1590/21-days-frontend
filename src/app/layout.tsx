@@ -33,7 +33,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
         </AuthProvider>
-        <ToastContainer position="top-right" theme="colored" />
+        <ToastContainer position="top-right" theme="colored" limit={1} />
       </body>
     </html>
   );

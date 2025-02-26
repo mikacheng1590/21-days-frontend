@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/table"
 import { createClient } from "@/lib/supabase/client/client"
 import { TABLE_PROJECTS } from "@/lib/supabase/constants"
+import { convertToDate, isDateToday } from "@/lib/datetime/utils"
 
 declare module '@tanstack/table-core' {
   interface TableMeta<TData extends RowData> {
@@ -120,7 +121,8 @@ export const columns: ColumnDef<Project>[] = [
       )
     },
     cell: ({ row }) => {
-      return <div className="font-base">{row.getValue("created_at")}</div>
+      const createdAt = convertToDate(row.getValue("created_at"))
+      return <div className="font-base">{createdAt}</div>
     },
   },
   // {
