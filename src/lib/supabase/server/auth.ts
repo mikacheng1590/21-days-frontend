@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server/client'
 import { TABLE_USERS_SETTING } from '@/lib/supabase/constants'
+import { BaseUserData } from '@/lib/supabase/types'
 
 export const getUser = async () => {
   const supabase = await createClient()
@@ -33,7 +34,7 @@ export const getUsernameByUserId = async (userId: string): Promise<string | null
   return userData?.username
 }
 
-export const getUserSettingByUsername = async (username: string): Promise<UserSetting | null> => {
+export const getUserSettingByUsername = async (username: string): Promise<BaseUserData | null> => {
   const supabase = await createClient()
   const { data: userData } = await supabase
     .from(TABLE_USERS_SETTING)

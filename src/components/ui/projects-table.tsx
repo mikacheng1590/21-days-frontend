@@ -39,7 +39,8 @@ import {
 } from "@/components/ui/table"
 import { createClient } from "@/lib/supabase/client/client"
 import { TABLE_PROJECTS } from "@/lib/supabase/constants"
-import { convertToDate, isDateToday } from "@/lib/datetime/utils"
+import { convertToDate } from "@/lib/datetime/utils"
+import { ProjectTable, BaseUserData } from "@/lib/supabase/types"
 
 declare module '@tanstack/table-core' {
   interface TableMeta<TData extends RowData> {
@@ -47,7 +48,7 @@ declare module '@tanstack/table-core' {
   }
 }
 
-export const columns: ColumnDef<Project>[] = [
+export const columns: ColumnDef<ProjectTable>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -159,9 +160,9 @@ export const columns: ColumnDef<Project>[] = [
 export default function ProjectsTable({
   userSetting
 }: {
-  userSetting: UserSetting
+  userSetting: BaseUserData
 }) {
-  const [data, setData] = useState<Project[]>([])
+  const [data, setData] = useState<ProjectTable[]>([])
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     [],

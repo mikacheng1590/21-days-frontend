@@ -2,7 +2,7 @@ import { PostgrestError } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/client/client"
 import { PROJECT_STATUS_ACTIVE, TABLE_PROJECTS, TABLE_ENTRIES, INSERT_ENTRY_WITH_IMAGES_FUNCTION } from "@/lib/supabase/constants"
 import { getUser } from "@/lib/supabase/client/auth"
-import { InsertEntryAndUpdateProjectStatusData, ProjectWithLatestEntry } from "@/lib/supabase/types"
+import { InsertEntryResult, ProjectWithLatestEntry } from "@/lib/supabase/types"
 
 export const getActiveProjectLatestEntry = async (projectId: number): Promise<ProjectWithLatestEntry | null> => {
   const user = await getUser()
@@ -21,7 +21,7 @@ export const getActiveProjectLatestEntry = async (projectId: number): Promise<Pr
   return error ? null : data
 }
 
-export const insertEntryAndUpdateProjectStatus = async (projectId: number, entry_description: string, image_urls: string[], today_day: number): Promise<InsertEntryAndUpdateProjectStatusData | PostgrestError> => {
+export const insertEntryAndUpdateProjectStatus = async (projectId: number, entry_description: string, image_urls: string[], today_day: number): Promise<InsertEntryResult | PostgrestError> => {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc(INSERT_ENTRY_WITH_IMAGES_FUNCTION, {
     project_id: Number(projectId),
