@@ -1,14 +1,19 @@
 import Link from "next/link"
-import { redirect } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { getProjectEntriesByProjectId } from "@/lib/supabase/server/db"
+import { getUserSettingByUsername } from "@/lib/supabase/server/auth"
 
 export default async function ProjectPage({
   params
 }: { params: { id: number, username: string} }) {
-  // TODO: check if user has this project
   const { id, username } = await params
-  const data = await getProjectEntriesByProjectId(id)
+  const userSetting = await getUserSettingByUsername(username)
+  if (!userSetting) {
+    notFound()
+  }
+
+  const data = await getProjectEntriesByProjectId(id, userSetting.user_id)
   if (!data) {
     redirect('/error')
   }

@@ -20,14 +20,11 @@ export const getActiveProjectLatestEntry = async (projectId: number): Promise<Pr
   return error ? null : data
 }
 
-export const getProjectEntriesByProjectId = async (projectId: number): Promise<ProjectView[] | null> => {
-  const user = await getUser()
-  if (!user) return null
-
+export const getProjectEntriesByProjectId = async (projectId: number, userId: string): Promise<ProjectView[] | null> => {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc(GET_PROJECT_ENTRIES_BY_PROJECT_ID_FUNCTION, {
     current_project_id: projectId,
-    current_user_id: user.id
+    current_user_id: userId
   })
 
   return error ? null : data
