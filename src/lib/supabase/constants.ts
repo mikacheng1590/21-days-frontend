@@ -16,3 +16,4 @@ export const PROJECT_STATUS_EXPIRED = 'expired'
 export const PROJECT_STATUS_COMPLETED = 'completed'
 
 export const INSERT_ENTRY_WITH_IMAGES_FUNCTION = 'insert_entry_with_images'
+export const GET_PROJECT_ENTRIES_BY_PROJECT_ID_FUNCTION = 'get_project_with_entries'

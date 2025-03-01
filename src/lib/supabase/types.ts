@@ -20,15 +20,24 @@ export type BaseProject = {
   status: string
 }
 
-export type UserSetting = BaseUserData & BaseModel
-
-export type Project = BaseProject & BaseModel
-
-export type Entry = BaseModel & {
+export type BaseEntry = {
   project_id: number
   description: string
   day: number
 }
+
+export type BaseEntryImage = {
+  entry_id: number
+  image_url: string
+}
+
+export type UserSetting = BaseUserData & BaseModel
+
+export type Project = BaseProject & BaseModel
+
+export type Entry = BaseModel & BaseEntry
+
+export type EntryImage = BaseModel & BaseEntryImage
 
 export type ProjectTable = Pick<Project, 'id' | 'title' | 'completed_days' | 'target_days' | 'status' | 'created_at'>
 
@@ -42,4 +51,8 @@ export type ProjectWithLatestEntry = Pick<Project, 'id' | 'target_days'> & {
   entries: Pick<Entry, 'id' | 'day' | 'created_at'>[]
 }
 
-export type ProjectDisplay = Omit<Project, 'id' | 'user_id' | 'updated_at'>
+export type ProjectView = Omit<BaseProject, 'user_id'> & {
+  entries: (Pick<Entry, 'id' | 'day' | 'description'> & {
+    images: Pick<EntryImage, 'id' | 'image_url'>[]
+  })[]
+}
