@@ -31,7 +31,7 @@ export default async function ProjectsPage({
             <Button className="mt-4 block">
               <Link href={`/${slug}/projects/new`} className="flex items-center gap-1">
                 <Plus className="h-4 w-4" />
-                New Entry
+                New Project
               </Link>
             </Button>
           )}

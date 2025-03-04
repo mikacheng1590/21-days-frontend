@@ -74,7 +74,7 @@ export default function Welcome() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="flex items-center justify-center flex-1 p-4">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold">Welcome to 21 Days</h1>

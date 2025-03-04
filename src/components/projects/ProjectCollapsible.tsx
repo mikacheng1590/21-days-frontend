@@ -46,7 +46,7 @@ export function ProjectCollapsible({
     <Collapsible
       open={isOpen}
       onOpenChange={setIsOpen}
-      className="w-full md:min-w-[250px] lg:min-w-[300px] space-y-2 relative md:sticky md:top-4 "
+      className="w-full md:min-w-[250px] lg:min-w-[300px] lg:max-w-[350px] space-y-2 relative md:sticky md:top-4 "
     >
       <div className="rounded-base flex items-center justify-between space-x-4 border-2 border-border text-mtext bg-main px-4 py-2">
         <h4 className="text-sm font-heading">
