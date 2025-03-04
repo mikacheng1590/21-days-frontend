@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { notFound } from "next/navigation"
+import { Plus } from "lucide-react"
 import { isPageOwner, getUserSettingByUsername } from "@/lib/supabase/server/auth"
 import { Button } from '@/components/ui/button'
 import ProjectsTable from '@/components/projects/ProjectsTable'
@@ -27,13 +28,12 @@ export default async function ProjectsPage({
             <h1 className="text-2xl font-bold">Private Page for {username}</h1>
           }
           {isOwner && (
-            <Link href={`/${username}/projects/new`}>
-              <Button
-                type="button"
-              >
-                Add New Project
-              </Button>
-            </Link>
+            <Button className="mt-4 block">
+              <Link href={`/${username}/projects/new`} className="flex items-center gap-1">
+                <Plus className="h-4 w-4" />
+                New Entry
+              </Link>
+            </Button>
           )}
         </div>
         <ProjectsTable userSetting={userSetting} />

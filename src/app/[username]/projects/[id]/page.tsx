@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
+import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getProjectEntriesByProjectId } from "@/lib/supabase/server/db"
 import { getUserSettingByUsername, isPageOwner } from "@/lib/supabase/server/auth"
@@ -37,11 +38,12 @@ export default async function ProjectPage({
             isOwner={isOwner}
           />
           {isOwner && (
-            <Link href={`/${username}/entries/new/${id}`} className="mt-4 block">
-              <Button>
-                Add New Entry
-              </Button>
-            </Link>
+            <Button type="button" className="mt-4 block">
+              <Link href={`/${username}/entries/new/${id}`} className="flex items-center gap-1">
+                <Plus className="h-4 w-4" />
+                New Entry
+              </Link>
+            </Button>
           )}
         </div>
         <EntryGrid entries={data.entries} />
