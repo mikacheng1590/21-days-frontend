@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { SUPABASE_DB_ERROR_DUPLICATE_KEY, TABLE_USERS_SETTING } from '@/lib/supabase/constants'
 import { useAuth } from '@/components/providers/AuthProvider'
+import { trimText, slugifyText } from '@/lib/text/utils'
 
 type FormData = {
   email: string
@@ -43,13 +44,17 @@ export default function Welcome() {
     setIsLoading(true)
     
     try {
+      const cleanedUsername = trimText(data.username)
+      const slug = slugifyText(cleanedUsername)
+
       const { error } = await supabase
         .from(TABLE_USERS_SETTING)
         .insert([
           {
             user_id: user.id,
             preferred_email: data.email,
-            username: data.username,
+            username: cleanedUsername,
+            slug: slug
           }
         ])
 
@@ -57,7 +62,7 @@ export default function Welcome() {
 
       reset()
       toast.success('Settings saved successfully!')
-      router.push(`/${data.username}/projects`)
+      router.push(`/${slug}/projects`)
     } catch (error: any) {
       console.error(error)
 
@@ -109,7 +114,7 @@ export default function Welcome() {
                   message: 'Username must be at least 3 characters'
                 },
                 pattern: {
-                  value: /^[a-zA-Z0-9\-]+$/,
+                  value: /^[a-zA-Z0-9\-\s]+$/,
                   message: 'Username can only contain letters, numbers and dashes'
                 }
               })}

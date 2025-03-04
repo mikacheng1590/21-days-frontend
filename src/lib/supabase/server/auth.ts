@@ -9,44 +9,44 @@ export const getUser = async () => {
   return !user ? null : user
 }
 
-export const getUsernameByUser = async (): Promise<string | null> => {
+export const getSlugByUser = async (): Promise<string | null> => {
   const user = await getUser()
   if (!user) return null
 
   const supabase = await createClient()
   const { data: userData } = await supabase
     .from(TABLE_USERS_SETTING)
-    .select('username')
+    .select('slug')
     .eq('user_id', user.id)
     .single()
 
-  return userData?.username
+  return userData?.slug
 }
 
-export const getUsernameByUserId = async (userId: string): Promise<string | null> => {
+export const getSlugByUserId = async (userId: string): Promise<string | null> => {
   const supabase = await createClient()
   const { data: userData } = await supabase
     .from(TABLE_USERS_SETTING)
-    .select('username')
+    .select('slug')
     .eq('user_id', userId)
     .single() 
 
-  return userData?.username
+  return userData?.slug
 }
 
-export const getUserSettingByUsername = async (username: string): Promise<BaseUserData | null> => {
+export const getUserSettingBySlug = async (slug: string): Promise<BaseUserData | null> => {
   const supabase = await createClient()
   const { data: userData } = await supabase
     .from(TABLE_USERS_SETTING)
-    .select('user_id, username, preferred_email')
-    .eq('username', username)
+    .select('user_id, username, preferred_email, slug')
+    .eq('slug', slug)
     .single()
 
   return userData
 }
 
-export const isPageOwner = async (pageUsername: string): Promise<boolean> => {
+export const isPageOwner = async (pageSlug: string): Promise<boolean> => {
   // check if current user is the owner of the page
-  const currentUsername = await getUsernameByUser()
-  return currentUsername === pageUsername
+  const currentSlug = await getSlugByUser()
+  return currentSlug === pageSlug
 }

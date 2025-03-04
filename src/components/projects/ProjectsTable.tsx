@@ -44,7 +44,7 @@ import { ProjectTable, BaseUserData } from "@/lib/supabase/types"
 
 declare module '@tanstack/table-core' {
   interface TableMeta<TData extends RowData> {
-    username: string
+    slug: string
   }
 }
 
@@ -88,7 +88,7 @@ export const columns: ColumnDef<ProjectTable>[] = [
     cell: ({ row, table }) => {
       return (
         <div className="hover:underline">
-          <Link href={`/${table.options.meta?.username}/projects/${row.original.id}`}>{row.getValue("title")}</Link>
+          <Link href={`/${table.options.meta?.slug}/projects/${row.original.id}`}>{row.getValue("title")}</Link>
         </div>
       )
     },
@@ -264,7 +264,7 @@ export default function ProjectsTable({
   const table = useReactTable({
     data,
     meta: {
-      username: userSetting.username
+      slug: userSetting.slug
     },
     columns,
     pageCount: totalCount ? Math.ceil(totalCount / pageSize) : -1,

@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server/client'
-import { getUser, getUsernameByUserId } from '@/lib/supabase/server/auth'
+import { getUser, getSlugByUserId } from '@/lib/supabase/server/auth'
 
 export const updateSession = async (request: NextRequest) => {
   let supabaseResponse = NextResponse.next({
@@ -33,20 +33,20 @@ export const updateSession = async (request: NextRequest) => {
     // no user, potentially respond by redirecting the user to the login page
     url.pathname = '/'
     return NextResponse.redirect(url)
-  }
+  }   
 
   if (user) {
-    const username = await getUsernameByUserId(user.id)
+    const slug = await getSlugByUserId(user.id)
 
     // check if user has set up setting
-    if (request.nextUrl.pathname !== '/welcome' && !username) {
+    if (request.nextUrl.pathname !== '/welcome' && !slug) {
       url.pathname = '/welcome'
       return NextResponse.redirect(url)
     }
 
     // redirect to projects page if user is logged in and has set up setting
-    if (request.nextUrl.pathname === '/' && username) {
-      url.pathname = `/${username}/projects`
+    if (request.nextUrl.pathname === '/' && slug) {
+      url.pathname = `/${slug}/projects`
       return NextResponse.redirect(url)
     }
     

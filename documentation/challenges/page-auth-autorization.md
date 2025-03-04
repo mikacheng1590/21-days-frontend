@@ -24,10 +24,10 @@ Examples: Create and edit projects/ entries page.
 - Make sure user data is accessible to both client and server components. (was using context but realized it's not the best way to do it when I need the data in the server components)
 
 # Solution
-middleware: allow/ disallow users to land on the page (db query: get user and get username by user)
+middleware: allow/ disallow users to land on the page (db query: get user and get slug by user)
 - disallow unauthenticated users from landing on /new, /edit, /welcome (redirect to /)
 
-page level: check if user is owner of the page (db query: check if path username is valid AND check if current user is the owner of the page)
+page level: check if user is owner of the page (db query: check if path slug is valid AND check if current user is the owner of the page)
 - allow everyone to access /projects, /entries, but check if they own the page to display different content
 
 global client component level (e.g. navbar): only need to check if user is authenticated since it's only different between authenticated and unauthenticated users (use client side event: *supabase.auth.onAuthStateChange*)

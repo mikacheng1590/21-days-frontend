@@ -78,8 +78,8 @@ export function AuthForm() {
       }
 
       toast.error(errMsg)
-      resetField('password')
     } finally {
+      resetField('password')
       setIsLoading(false)
     }
   }, [isLoading, setIsLoading, resetField, mode, setMode, supabase, router])

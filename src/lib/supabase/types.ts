@@ -7,6 +7,7 @@ type BaseModel = {
 export type BaseUserData = {
   user_id: string
   username: string
+  slug: string
   preferred_email: string
 }
 

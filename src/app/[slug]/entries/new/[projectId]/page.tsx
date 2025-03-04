@@ -5,9 +5,9 @@ import { isDateToday } from "@/lib/datetime/utils"
 
 export default async function NewEntryPage({
   params
-}: { params: { projectId: number, username: string } })
+}: { params: { projectId: number, slug: string } })
 {
-  const { projectId, username } = await params
+  const { projectId, slug } = await params
 
   // check if project exists AND is active, if so return the latest entry
   const latestEntry = await getActiveProjectLatestEntry(projectId)
@@ -19,7 +19,7 @@ export default async function NewEntryPage({
 
   // today has an entry, cannot create a new one
   if (latestEntry.entries.length && isDateToday(latestEntry.entries[0].created_at)) {
-    redirect(`/${username}/entries/${latestEntry.id}/edit?warning=potential-entry-for-today`)
+    redirect(`/${slug}/entries/${latestEntry.id}/edit?warning=potential-entry-for-today`)
   } else if (latestEntry.entries.length) {
     todayDay = latestEntry.entries[0].day + 1
   }

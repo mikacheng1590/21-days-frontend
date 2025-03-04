@@ -9,15 +9,15 @@ An app with RWD for people to build habit. Users can create a habit (it's called
 5. When user input entry for a number of days off, the project will be over.
 
 # URL Structure
-1. /                    - login/signup or redirect to /{username}
+1. /                    - login/signup or redirect to /{slug}
 2. /welcome             - new user setup
-3. /{username}/projects - list all projects (could be private/public)
-4. /{username}/projects/new     - create project
-5. /{username}/projects/:id     - view project details and list entries (could be private/public)
-6. /{username}/projects/:id/edit - edit project
-7. /{username}/entries/new/:projectId - create entry
-8. /{username}/entries/:id      - view entry (could be private/public)
-9. /{username}/entries/:id/edit - edit entry
+3. /{slug}/projects - list all projects (could be private/public)
+4. /{slug}/projects/new     - create project
+5. /{slug}/projects/:id     - view project details and list entries (could be private/public)
+6. /{slug}/projects/:id/edit - edit project
+7. /{slug}/entries/new/:projectId - create entry
+8. /{slug}/entries/:id      - view entry (could be private/public)
+9. /{slug}/entries/:id/edit - edit entry
 
 # Libraries
 1. React
