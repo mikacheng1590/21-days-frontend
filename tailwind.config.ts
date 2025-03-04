@@ -12,6 +12,10 @@ export default {
 			colors: {
 				main: 'var(--main)',
 				overlay: 'var(--overlay)',
+				success: 'var(--success)',
+				warning: 'var(--warning)',
+				error: 'var(--error)',
+				ordinary: 'var(--ordinary)',
 				bg: 'var(--bg)',
 				bw: 'var(--bw)',
 				blank: 'var(--blank)',

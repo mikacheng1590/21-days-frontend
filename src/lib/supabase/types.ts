@@ -51,8 +51,8 @@ export type ProjectWithLatestEntry = Pick<Project, 'id' | 'target_days'> & {
   entries: Pick<Entry, 'id' | 'day' | 'created_at'>[]
 }
 
-export type ProjectView = Omit<BaseProject, 'user_id'> & {
-  entries: (Pick<Entry, 'id' | 'day' | 'description'> & {
+export type ProjectView = Omit<Project, 'id' | 'user_id' | 'updated_at'> & {
+  entries: (Pick<Entry, 'id' | 'day' | 'description' | 'created_at'> & {
     images: Pick<EntryImage, 'id' | 'image_url'>[]
   })[]
 }
