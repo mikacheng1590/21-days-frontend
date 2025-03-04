@@ -23,12 +23,9 @@ export default async function ProjectsPage({
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold">This is a page</h1>
-          {isOwner &&
-            <h1 className="text-2xl font-bold">Private Page for {userSetting.username}</h1>
-          }
+          <h1 className="text-2xl font-bold">{userSetting.username}'s Projects</h1>
           {isOwner && (
-            <Button className="mt-4 block">
+            <Button>
               <Link href={`/${slug}/projects/new`} className="flex items-center gap-1">
                 <Plus className="h-4 w-4" />
                 New Project
