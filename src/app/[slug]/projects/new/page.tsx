@@ -2,7 +2,7 @@ import NewForm from '@/components/projects/NewForm'
 
 export default function NewProjectPage() {
   return (
-    <div className="min-h-screen p-4">
+    <div className="p-4">
       <div className="max-w-2xl mx-auto space-y-8">
         <div>
           <h1 className="text-3xl font-bold">Create New Project</h1>
