@@ -45,7 +45,7 @@ export const updateSession = async (request: NextRequest) => {
     }
 
     // redirect to projects page if user is logged in and has set up setting
-    if (request.nextUrl.pathname === '/' && slug) {
+    if (['/', '/welcome'].includes(request.nextUrl.pathname) && slug) {
       url.pathname = `/${slug}/projects`
       return NextResponse.redirect(url)
     }
