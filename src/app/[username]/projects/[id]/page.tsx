@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { getProjectEntriesByProjectId } from "@/lib/supabase/server/db"
 import { getUserSettingByUsername, isPageOwner } from "@/lib/supabase/server/auth"
 import { ProjectCollapsible } from "@/components/projects/ProjectCollapsible"
-import { ProjectCard } from "@/components/entries/EntryCard"
+import { EntryGrid } from "@/components/projects/EntryGrid"
 
 export default async function ProjectPage({
   params
@@ -44,17 +44,7 @@ export default async function ProjectPage({
             </Link>
           )}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full gap-4">
-          {data.entries.map((entry) => (
-            <ProjectCard
-              key={entry.id}
-              description={entry.description}
-              day={entry.day}
-              images={entry.images}
-              createdAt={entry.created_at}
-            />
-          ))}
-        </div>
+        <EntryGrid entries={data.entries} />
       </div>
     </div>
   )
