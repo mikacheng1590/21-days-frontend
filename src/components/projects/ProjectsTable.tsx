@@ -182,7 +182,7 @@ export default function ProjectsTable({
       column: string = '',
       sortOrder: string = 'desc',
     ) => {
-      if (isLoading) return
+      if (isLoading || (typeof totalCount === 'number' && totalCount <= 1)) return
 
       try {
         setIsLoading(true)
