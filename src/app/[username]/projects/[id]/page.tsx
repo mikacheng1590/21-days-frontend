@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { getProjectEntriesByProjectId } from "@/lib/supabase/server/db"
 import { getUserSettingByUsername, isPageOwner } from "@/lib/supabase/server/auth"
 import { ProjectCollapsible } from "@/components/projects/ProjectCollapsible"
-import { ProjectCard } from "@/components/projects/EntryCard"
+import { ProjectCard } from "@/components/entries/EntryCard"
 
 export default async function ProjectPage({
   params

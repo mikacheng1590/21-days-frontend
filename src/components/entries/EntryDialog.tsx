@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
+  // DialogDescription,
   // DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -42,7 +42,7 @@ export function ProjectDialog({
       <DialogContent className="sm:max-w-[800px] h-full md:h-[80%] overflow-y-scroll">
         <DialogHeader>
           <DialogTitle>Day {day} - <span className="text-sm text-muted-foreground">{convertToDate(createdAt)}</span></DialogTitle>
-          <DialogDescription>
+          {/* <DialogDescription> */}
             <div className="flex justify-center items-center">
               <Carousel className="w-full max-w-[200px] md:max-w-[400px]">
                 <CarouselContent>
@@ -63,7 +63,7 @@ export function ProjectDialog({
               </Carousel>
             </div>
             <p className="text-xl font-base">{description}</p>
-          </DialogDescription>
+          {/* </DialogDescription> */}
         </DialogHeader>
       </DialogContent>
     </Dialog>
