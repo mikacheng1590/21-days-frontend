@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from "next/navigation"
 import { isPageOwner, getUserSettingByUsername } from "@/lib/supabase/server/auth"
 import { Button } from '@/components/ui/button'
-import ProjectsTable from '@/components/ui/projects-table'
+import ProjectsTable from '@/components/projects/ProjectsTable'
 
 export default async function ProjectsPage({
   params,
