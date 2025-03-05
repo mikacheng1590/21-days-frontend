@@ -2,6 +2,8 @@
 
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
 import { useForm, useWatch } from "react-hook-form"
+import { useRouter } from "next/navigation"
+import { toast } from "react-toastify"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import ImageCard from "@/components/ui/image-card"
@@ -20,12 +22,15 @@ type FormData = {
 type NewFormProps = {
   projectId: number
   todayDay: number
+  slug: string
 }
 
 export default function NewForm({
   projectId,
   todayDay,
+  slug
 }: NewFormProps) {
+  const router = useRouter()
   const imageInputRef = useRef<HTMLInputElement>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const {
@@ -105,6 +110,8 @@ export default function NewForm({
       })
 
       if (error) throw error
+      toast.success('Congratulations! You\'re one step closer to your goal!')
+      router.push(`/${slug}/projects/${projectId}`)
     } catch (error) {
       console.error(error)
     } finally {

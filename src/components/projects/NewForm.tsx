@@ -19,7 +19,13 @@ type FormData = {
   allowedSkips: number
 }
 
-export default function NewForm() {
+type NewFormProps = {
+  slug: string
+} 
+
+export default function NewForm({
+  slug
+}: NewFormProps) {
   const { user } = useAuth()  
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -69,7 +75,7 @@ export default function NewForm() {
       
       reset()
       toast.success('Project created successfully!')
-      // router.back()
+      router.push(`/${slug}/projects`)
     } catch (error) {
       console.error(error)
       toast.error('Failed to create project')

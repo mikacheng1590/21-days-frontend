@@ -3,9 +3,16 @@ import NewForm from "@/components/entries/NewForm"
 import { getActiveProjectLatestEntry } from "@/lib/supabase/server/db"
 import { isDateToday } from "@/lib/datetime/utils"
 
+type NewEntryPageProps = {  
+  params: {
+    projectId: number
+    slug: string
+  }
+}
+
 export default async function NewEntryPage({
   params
-}: { params: { projectId: number, slug: string } })
+}: NewEntryPageProps)
 {
   const { projectId, slug } = await params
 
@@ -37,7 +44,11 @@ export default async function NewEntryPage({
           </p>
         </div>
 
-        <NewForm projectId={projectId} todayDay={todayDay} />
+        <NewForm
+          projectId={projectId}
+          todayDay={todayDay}
+          slug={slug}
+        />
       </div>
     </div>
   )

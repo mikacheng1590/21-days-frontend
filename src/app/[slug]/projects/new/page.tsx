@@ -1,6 +1,16 @@
 import NewForm from '@/components/projects/NewForm'
 
-export default function NewProjectPage() {
+type NewProjectPageProps = {
+  params: {
+    slug: string
+  }
+}
+
+export default async function NewProjectPage({
+  params
+}: NewProjectPageProps) {
+  const { slug } = await params
+
   return (
     <div className="p-4">
       <div className="max-w-2xl mx-auto space-y-8">
@@ -11,7 +21,9 @@ export default function NewProjectPage() {
           </p>
         </div>
 
-        <NewForm />
+        <NewForm
+          slug={slug}
+        />
       </div>
     </div>
   )
