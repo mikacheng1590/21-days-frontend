@@ -56,6 +56,8 @@ export type ProjectViewEntry = Pick<Entry, 'id' | 'day' | 'description' | 'creat
   images: Pick<EntryImage, 'id' | 'image_url'>[]
 }
 
-export type ProjectView = Omit<Project, 'id' | 'user_id' | 'updated_at'> & {
+export type ProjectPublicView = Omit<Project, 'id' | 'user_id' | 'updated_at'> & {
   entries: ProjectViewEntry[]
 }
+
+export type ProjectSummary = Pick<Project, 'id' | 'title' | 'description' | 'target_days' | 'allow_skipped_days'>

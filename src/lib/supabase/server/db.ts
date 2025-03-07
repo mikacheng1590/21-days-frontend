@@ -1,31 +1,32 @@
 import { createClient } from "@/lib/supabase/server/client"
-import { PROJECT_STATUS_ACTIVE, TABLE_PROJECTS, TABLE_ENTRIES, TABLE_ENTRIES_IMAGES, GET_PROJECT_ENTRIES_BY_PROJECT_ID_FUNCTION } from "@/lib/supabase/constants"
 import { getUser } from "@/lib/supabase/server/auth"
-import { ProjectWithLatestEntry, ProjectView } from "@/lib/supabase/types"
+import { ProjectWithLatestEntry, ProjectPublicView, ProjectSummary } from "@/lib/supabase/types"
+import { DatabaseService } from "@/lib/supabase/DatabaseService"
+
+let dbService: DatabaseService | null = null
+
+const getDbService = async () => {
+  if (!dbService) {
+    const supabase = await createClient()
+    dbService = new DatabaseService(supabase)
+  }
+  return dbService
+}
 
 export const getActiveProjectLatestEntry = async (projectId: number): Promise<ProjectWithLatestEntry | null> => {
   const user = await getUser()
   if (!user) return null
 
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from(TABLE_PROJECTS)
-    .select(`id, target_days, ${TABLE_ENTRIES}!left(id, day, created_at)`) // left join
-    .eq('user_id', user.id)
-    .eq('status', PROJECT_STATUS_ACTIVE)
-    .eq('id', projectId)
-    .order('day', { ascending: false, referencedTable: TABLE_ENTRIES })
-    .single()
-
-  return error ? null : data
+  const db = await getDbService()
+  return db.getActiveProjectLatestEntry(projectId, user.id)
 }
 
-export const getProjectEntriesByProjectId = async (projectId: number, userId: string): Promise<ProjectView | null> => {
-  const supabase = await createClient()
-  const { data, error } = await supabase.rpc(GET_PROJECT_ENTRIES_BY_PROJECT_ID_FUNCTION, {
-    current_project_id: projectId,
-    current_user_id: userId
-  })
+export const getProjectEntriesByProjectId = async (projectId: number, userId: string): Promise<ProjectPublicView | null> => {
+  const db = await getDbService()
+  return db.getProjectEntriesByProjectId(projectId, userId)
+}
 
-  return error ? null : data
+export const getActiveProjectById = async (projectId: number): Promise<ProjectSummary | null> => {
+  const db = await getDbService()
+  return db.getActiveProjectById(projectId)
 }
