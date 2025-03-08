@@ -12,8 +12,9 @@ import {
   ProjectPublicView,
   ProjectSummary,
   InsertEntryResult,
-  Project,
-  BaseProject
+  BaseProject,
+  ProjectEditView,
+  insertUpdateError
 } from "@/lib/supabase/types"
 
 export class DatabaseService {
@@ -72,7 +73,7 @@ export class DatabaseService {
     return error ?? data
   }
 
-  async insertProject(project: BaseProject): Promise<PostgrestError | null> {
+  async insertProject(project: BaseProject): Promise<insertUpdateError> {
     const { data, error } = await this.supabase
       .from(TABLE_PROJECTS)
       .insert([project])
@@ -80,11 +81,12 @@ export class DatabaseService {
     return error ?? data
   }
 
-  async updateProject(project: Project): Promise<PostgrestError | null> {
+  async updateProject(project: ProjectEditView): Promise<insertUpdateError> {
     const { data, error } = await this.supabase
       .from(TABLE_PROJECTS)
       .update(project)
       .eq('id', project.id)
+      .eq('status', PROJECT_STATUS_ACTIVE)
 
     return error ?? data
   }

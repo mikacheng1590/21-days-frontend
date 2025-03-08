@@ -9,8 +9,10 @@ import { Input } from '@/components/ui/input'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/components/providers/AuthProvider'
-import { TABLE_PROJECTS, PROJECT_STATUS_ACTIVE } from "@/lib/supabase/constants"
-import { createClient } from '@/lib/supabase/client/client'
+import { PROJECT_STATUS_ACTIVE } from "@/lib/supabase/constants"
+import { ProjectSummary, insertUpdateError } from '@/lib/supabase/types'
+import { cn } from "@/lib/tailwind/utils"
+import { insertProject, updateProject } from "@/lib/supabase/client/db"
 
 type FormData = {
   title: string
@@ -21,10 +23,14 @@ type FormData = {
 
 type NewFormProps = {
   slug: string
+  project?: ProjectSummary
+  formType?: 'new' | 'edit'
 } 
 
 export default function NewForm({
-  slug
+  slug,
+  project,
+  formType = 'new'
 }: NewFormProps) {
   const { user } = useAuth()  
   const [isLoading, setIsLoading] = useState(false)
@@ -39,8 +45,10 @@ export default function NewForm({
   } = useForm<FormData>({
     mode: 'onSubmit',
     defaultValues: {
-      numberOfDays: 21,
-      allowedSkips: 0
+      title: project?.title || '',
+      description: project?.description || '',
+      numberOfDays: project?.target_days || 21,
+      allowedSkips: project?.allow_skipped_days || 0
     }
   })
 
@@ -56,33 +64,41 @@ export default function NewForm({
     }
 
     try {
-      const supabase = createClient()
-      const { error } = await supabase
-        .from(TABLE_PROJECTS)
-        .insert([
-          {
-            title: data.title,
-            description: data.description,
-            user_id: user.id,
-            target_days: data.numberOfDays,
-            allow_skipped_days: data.allowedSkips,
-            status: PROJECT_STATUS_ACTIVE,
-            completed_days: 0
-          }
-        ])
-      
+      let error: insertUpdateError = null
+      let successMessage = 'Project created successfully!'
+      if (project) {
+        successMessage = 'Project updated successfully!'
+
+        error = await updateProject({
+          id: project.id,
+          title: data.title,
+          description: data.description,
+        })
+      } else {
+        error = await insertProject({
+          title: data.title,
+          description: data.description,
+          user_id: user.id,
+          target_days: data.numberOfDays,
+          allow_skipped_days: data.allowedSkips,
+          completed_days: 0,
+          status: PROJECT_STATUS_ACTIVE
+        })
+      }
+
       if (error) throw error
       
       reset()
-      toast.success('Project created successfully!')
+      toast.success(successMessage)
       router.push(`/${slug}/projects`)
     } catch (error) {
       console.error(error)
-      toast.error('Failed to create project')
+      const errorMessage = formType === 'new' ? 'Failed to create project. Please try again later.' : 'Failed to update project. Please try again later.'
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }
-  }, [isLoading, setIsLoading, user, toast, router, reset])
+  }, [isLoading, setIsLoading, user, toast, router, reset, updateProject, insertProject])
 
   const onSubmit = async (data: FormData) => {
     handleFormSubmit(data)
@@ -125,7 +141,8 @@ export default function NewForm({
             min={21}
             max={31}
             step={1}
-            className="neo-brutalism-slider"
+            className={cn("neo-brutalism-slider", !!project && "opacity-50")}
+            disabled={!!project}
           />
           <p className="text-sm text-muted-foreground text-center">
             {watch('numberOfDays')} days
@@ -142,7 +159,8 @@ export default function NewForm({
             min={0}
             max={3}
             step={1}
-            className="neo-brutalism-slider"
+            className={cn("neo-brutalism-slider", !!project && "opacity-50")}
+            disabled={!!project}
           />
           <p className="text-sm text-muted-foreground text-center">
             {watch('allowedSkips')} {[0, 1].includes(watch('allowedSkips')) ? 'day' : 'days'}
@@ -155,7 +173,7 @@ export default function NewForm({
         className="w-full neo-brutalism-button"
         disabled={!isValid || isLoading}
       >
-        Create Project
+        {formType === 'new' ? 'Create Project' : 'Update Project'}
       </Button>
     </form>
   )

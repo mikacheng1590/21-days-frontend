@@ -1,3 +1,5 @@
+import { PostgrestError } from "@supabase/supabase-js"
+
 type BaseModel = {
   id: number
   created_at: string
@@ -61,3 +63,7 @@ export type ProjectPublicView = Omit<Project, 'id' | 'user_id' | 'updated_at'> &
 }
 
 export type ProjectSummary = Pick<Project, 'id' | 'title' | 'description' | 'target_days' | 'allow_skipped_days'>
+
+export type ProjectEditView = Pick<Project, 'id' | 'title' | 'description'>
+
+export type insertUpdateError = PostgrestError | null

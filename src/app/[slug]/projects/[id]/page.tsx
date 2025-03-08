@@ -22,12 +22,11 @@ export default async function ProjectPage({
   }
 
   const isOwner = await isPageOwner(slug)
-  console.log(data)
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-4 md:flex-row">
-        <div>
+        <div className="relative md:sticky md:top-4">
           <ProjectCollapsible
             title={data.title}
             description={data.description}
@@ -37,6 +36,8 @@ export default async function ProjectPage({
             allowedSkippedDays={data.allow_skipped_days}
             createdAt={data.created_at}
             isOwner={isOwner}
+            slug={slug}
+            id={id}
           />
           {isOwner && (
             <Button type="button" className="mt-4 block">
