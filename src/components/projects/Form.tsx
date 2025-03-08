@@ -71,6 +71,7 @@ export default function Form({
           user_id: user.id,
           title: data.title,
           description: data.description,
+          updated_at: new Date().toISOString()
         })
 
         if (error) throw error        
