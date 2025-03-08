@@ -1,4 +1,4 @@
-import NewForm from "@/components/projects/NewForm"
+import NewForm from "@/components/projects/Form"
 import { getActiveProjectById } from "@/lib/supabase/server/db"
 import { redirect } from "next/navigation"
 

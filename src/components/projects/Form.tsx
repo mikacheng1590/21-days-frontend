@@ -21,17 +21,17 @@ type FormData = {
   allowedSkips: number
 }
 
-type NewFormProps = {
+type FormProps = {
   slug: string
   project?: ProjectSummary
   formType?: 'new' | 'edit'
 } 
 
-export default function NewForm({
+export default function Form({
   slug,
   project,
   formType = 'new'
-}: NewFormProps) {
+}: FormProps) {
   const { user } = useAuth()  
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()

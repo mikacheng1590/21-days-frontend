@@ -1,4 +1,4 @@
-import NewForm from '@/components/projects/NewForm'
+import NewForm from '@/components/projects/Form'
 
 type NewProjectPageProps = {
   params: {
