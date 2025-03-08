@@ -5,7 +5,9 @@ import {
   TABLE_PROJECTS,
   TABLE_ENTRIES,
   INSERT_ENTRY_WITH_IMAGES_FUNCTION,
-  GET_PROJECT_ENTRIES_BY_PROJECT_ID_FUNCTION
+  GET_PROJECT_ENTRIES_BY_PROJECT_ID_FUNCTION,
+  GET_ACTIVE_PROJECT_LATEST_ENTRY_FUNCTION,
+  UPDATE_ENTRY_WITH_IMAGES_FUNCTION
 } from "@/lib/supabase/constants"
 import {
   ProjectWithLatestEntry,
@@ -15,7 +17,8 @@ import {
   BaseProject,
   ProjectEditView,
   InsertProjectResult,
-  UpdateResponse
+  UpdateResponse,
+  EntryView
 } from "@/lib/supabase/types"
 
 export class DatabaseService {
@@ -39,7 +42,8 @@ export class DatabaseService {
   }
 
   async getProjectEntriesByProjectId(projectId: number, userId: string): Promise<ProjectPublicView | null> {
-    const { data, error } = await this.supabase.rpc(GET_PROJECT_ENTRIES_BY_PROJECT_ID_FUNCTION, {
+    const { data, error } = await this.supabase
+    .rpc(GET_PROJECT_ENTRIES_BY_PROJECT_ID_FUNCTION, {
       current_project_id: projectId,
       current_user_id: userId
     })
@@ -59,18 +63,42 @@ export class DatabaseService {
     return error ? null : data
   }
 
+  async getEntryById(entryId: number, userId: string): Promise<EntryView | null> {
+    const { data, error } = await this.supabase
+      .rpc(GET_ACTIVE_PROJECT_LATEST_ENTRY_FUNCTION, {
+        current_entry_id: entryId,
+        current_user_id: userId
+      })
+
+      return error ? null : data
+  }
+
   async insertEntryAndUpdateProjectStatus(
     projectId: number,
     entry_description: string,
     image_urls: string[],
     today_day: number
   ): Promise<InsertEntryResult | PostgrestError> {
-    const { data, error } = await this.supabase.rpc(INSERT_ENTRY_WITH_IMAGES_FUNCTION, {
-      project_id: projectId,
-      entry_description,
-      image_urls,
-      today_day
-    })
+    const { data, error } = await this.supabase
+      .rpc(INSERT_ENTRY_WITH_IMAGES_FUNCTION, {
+        project_id: projectId,
+        entry_description,
+        image_urls,
+        today_day
+      })
+
+    return error ?? data
+  }
+
+  async updateEntry(entryId: number, userId: string, description: string, imageUrls: string[], deletedImageUrls: string[]): Promise<boolean | PostgrestError> {
+    const { data, error } = await this.supabase
+      .rpc(UPDATE_ENTRY_WITH_IMAGES_FUNCTION, {
+        current_entry_id: entryId,
+        current_user_id: userId,
+        new_description: description,
+        image_url_array: imageUrls,
+        deleted_image_url_array: deletedImageUrls
+      })
 
     return error ?? data
   }

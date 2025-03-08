@@ -27,6 +27,11 @@ export const insertEntryAndUpdateProjectStatus = async (projectId: number, entry
   return db.insertEntryAndUpdateProjectStatus(projectId, entry_description, image_urls, today_day)
 }
 
+export const updateEntry = async (entryId: number, userId: string, description: string, imageUrls: string[], deletedImageUrls: string[]) => {
+  const db = await getDbService()
+  return db.updateEntry(entryId, userId, description, imageUrls, deletedImageUrls)
+}
+
 export const insertProject = async (project: BaseProject): Promise<InsertProjectResult[] | null> => {
   const db = await getDbService()
   return db.insertProject(project)

@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server/client"
 import { getUser } from "@/lib/supabase/server/auth"
-import { ProjectWithLatestEntry, ProjectPublicView, ProjectSummary } from "@/lib/supabase/types"
+import { ProjectWithLatestEntry, ProjectPublicView, ProjectSummary, EntryView } from "@/lib/supabase/types"
 import { DatabaseService } from "@/lib/supabase/DatabaseService"
 
 let dbService: DatabaseService | null = null
@@ -29,4 +29,9 @@ export const getProjectEntriesByProjectId = async (projectId: number, userId: st
 export const getActiveProjectById = async (projectId: number, userId: string): Promise<ProjectSummary | null> => {
   const db = await getDbService()
   return db.getActiveProjectById(projectId, userId)
+}
+
+export const getEntryById = async (entryId: number, userId: string): Promise<EntryView | null> => {
+  const db = await getDbService()
+  return db.getEntryById(entryId, userId)
 }

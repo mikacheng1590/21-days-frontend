@@ -48,7 +48,7 @@ export default async function ProjectPage({
             </Button>
           )}
         </div>
-        <EntryGrid entries={data.entries} />
+        <EntryGrid entries={data.entries} isOwner={isOwner} slug={slug} />
       </div>
     </div>
   )

@@ -2,16 +2,20 @@
 
 import { useState } from "react"
 import { ProjectViewEntry } from "@/lib/supabase/types"
-import { ProjectCard } from "@/components/entries/EntryCard"
+import { EntryCard } from "@/components/entries/EntryCard"
 import { Button } from "@/components/ui/button"
 import { ArrowUpDown } from "lucide-react"
 
 type EntryGridProps = {
   entries: ProjectViewEntry[]
+  isOwner: boolean
+  slug: string
 }
 
 export function EntryGrid({
-  entries
+  entries,
+  isOwner,
+  slug
 }: EntryGridProps) {
   // initial entries are sorted by day asc in db
   const [list, setList] = useState<ProjectViewEntry[]>(entries)
@@ -29,12 +33,15 @@ export function EntryGrid({
       </Button>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full gap-4">
         {list.map((entry) => (
-          <ProjectCard
+          <EntryCard
             key={entry.id}
+            entryId={entry.id}
             description={entry.description}
             day={entry.day}
             images={entry.images}
             createdAt={entry.created_at}
+            isOwner={isOwner}
+            slug={slug}
           />
         ))}
       </div>

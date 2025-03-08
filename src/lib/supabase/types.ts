@@ -32,6 +32,7 @@ export type BaseEntry = {
 export type BaseEntryImage = {
   entry_id: number
   image_url: string
+  status: string
 }
 
 export type UserSetting = BaseUserData & BaseModel
@@ -69,5 +70,10 @@ export type ProjectPublicView = Omit<Project, 'id' | 'user_id' | 'updated_at'> &
 export type ProjectSummary = Pick<Project, 'id' | 'title' | 'description' | 'target_days' | 'allow_skipped_days'>
 
 export type ProjectEditView = Pick<Project, 'id' | 'user_id' | 'title' | 'description' | 'updated_at'>
+
+export type EntryView = Pick<Entry, 'id' | 'day' | 'description' | 'created_at'> & {
+  project_id: number
+  images: Pick<EntryImage, 'id' | 'image_url'>[]
+}
 
 export type UpdateResponse = PostgrestError | null

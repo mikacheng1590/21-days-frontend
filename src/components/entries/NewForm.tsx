@@ -4,35 +4,47 @@ import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { useRouter } from "next/navigation"
 import { toast } from "react-toastify"
+import { PostgrestError } from "@supabase/supabase-js"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import ImageCard from "@/components/ui/image-card"
 import { Textarea } from "@/components/ui/textarea"
 import { convertBlobUrlToFile } from "@/lib/image/utils"
 import { uploadImage } from "@/lib/supabase/client/storage"
-import { createClient } from "@/lib/supabase/client/client"
-import { INSERT_ENTRY_WITH_IMAGES_FUNCTION } from "@/lib/supabase/constants"
-import { getActiveProjectLatestEntry } from "@/lib/supabase/client/db"
+import { getActiveProjectLatestEntry, insertEntryAndUpdateProjectStatus, updateEntry } from "@/lib/supabase/client/db"
+import { EntryView } from "@/lib/supabase/types"
+import { useAuth } from "@/components/providers/AuthProvider"
+
+type FormImage = {
+  url: string
+  isExisting: boolean
+}
 
 type FormData = {
   description: string
-  images: string[]
+  images: FormImage[]
 }
 
 type NewFormProps = {
   projectId: number
-  todayDay: number
+  todayDay?: number
   slug: string
+  entry?: EntryView
 }
 
 export default function NewForm({
   projectId,
   todayDay,
-  slug
+  slug,
+  entry
 }: NewFormProps) {
+  const { user } = useAuth()
+  const isEditMode = !!entry
   const router = useRouter()
   const imageInputRef = useRef<HTMLInputElement>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [imagesToDelete, setImagesToDelete] = useState<string[]>([])
+  
   const {
     register,
     handleSubmit,
@@ -43,8 +55,11 @@ export default function NewForm({
   } = useForm<FormData>({
     mode: 'onSubmit',
     defaultValues: {
-      description: '',
-      images: []
+      description: entry?.description || '',
+      images: entry?.images.map((image) => ({
+        url: image.image_url,
+        isExisting: true
+      })) || []
     }
   })
 
@@ -56,7 +71,10 @@ export default function NewForm({
   const handleImageChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
-      const newImageUrls = filesArray.map((file) => URL.createObjectURL(file));
+      const newImageUrls = filesArray.map((file) => ({
+        url: URL.createObjectURL(file),
+        isExisting: false
+      }));
 
       const newUrls = [...imagesInput, ...newImageUrls]
       setValue('images', newUrls, {
@@ -66,58 +84,116 @@ export default function NewForm({
   }, [imagesInput, setValue])
 
   const handleDeleteImage = useCallback((index: number) => {
+    const imageToDelete = imagesInput[index]
+    if (imageToDelete.isExisting) {
+      setImagesToDelete(prev => [...prev, imageToDelete.url])
+    }
     const newUrls = imagesInput.filter((_, i) => i !== index)
     setValue('images', newUrls, {
       shouldValidate: true,
     })
-  }, [imagesInput, setValue])
+  }, [imagesInput, setImagesToDelete, setValue])
+
+  const uploadImageToDb = useCallback(async (images: FormImage[]): Promise<string[]> => {
+    let imageUrls = []
+
+    for (const image of images) {
+      // if image does not exist on db, upload it
+      if (!image.isExisting) {
+        const imageFile = await convertBlobUrlToFile(image.url);
+        const { imageUrl, error } = await uploadImage({
+          file: imageFile,
+        });
+
+        if (error) throw error
+        imageUrls.push(imageUrl)
+      }
+    }
+
+    return imageUrls
+  }, [convertBlobUrlToFile, uploadImage])
+
+  const updateEntryOnDb = useCallback(async (description: string, imageUrls: string[]): Promise<boolean | PostgrestError> => {
+    if (!entry || !user) return false
+    const editResponse = await updateEntry(
+      entry.id,
+      user.id,
+      description,
+      imageUrls,
+      imagesToDelete) 
+
+    return editResponse
+  }, [updateEntry, entry, user, imagesToDelete])
+
+  const insertEntryOnDb = useCallback(async (description: string, imageUrls: string[]): Promise<boolean | PostgrestError> => {
+    // Validate day sequence for new entries only
+    const latestEntry = await getActiveProjectLatestEntry(projectId)
+    if (!latestEntry) {
+      throw new Error('User/ project not found')
+    }
+
+    const latestEntryDay = latestEntry.entries.length ? latestEntry.entries[0].day : 0
+    if (!todayDay || (todayDay && todayDay - latestEntryDay !== 1)) {
+      throw new Error('Something wrong with the day. Please refresh the page.')
+    }
+
+    // Insert new entry
+    const insertResponse = await insertEntryAndUpdateProjectStatus(
+      projectId,
+      description,
+      imageUrls,
+      todayDay
+    )
+    if (insertResponse instanceof PostgrestError) throw insertResponse
+
+    return true
+  }, [insertEntryAndUpdateProjectStatus, projectId, todayDay])
 
   const handleFormSubmit = useCallback(async(formData: FormData) => {
     if (isLoading) return
     setIsLoading(true)
 
+    if (!user) {
+      toast.error('Please login to create a project')
+      setIsLoading(false)
+      router.push('/')
+      return
+    }
+
     try {
-      const latestEntry = await getActiveProjectLatestEntry(projectId)
-      if (!latestEntry) {
-        throw new Error('User/ project not found')
-      }
-
-      const latestEntryDay = latestEntry.entries.length ? latestEntry.entries[0].day : 0
-      if (todayDay - latestEntryDay !== 1) {
-        throw new Error('Something wrong with the day. Please refresh the page.')
-      }
-
       const { images, description } = formData
-      // upload images to supabase storage
-      let imageUrls = []
-      for (const url of images) {
-        const imageFile = await convertBlobUrlToFile(url);
+      let successMessage = ''
 
-        const { imageUrl, error } = await uploadImage({
-          file: imageFile,
-        });
-        imageUrls.push(imageUrl)
+      const imageUrls = await uploadImageToDb(images)
 
-        if (error) throw error
-      }
+      if (isEditMode) {
+        const editResponse = await updateEntryOnDb(
+          description,
+          imageUrls,
+        )
+        if (!editResponse || editResponse instanceof PostgrestError) throw new Error('Failed to update entry')
 
-      const supabase = createClient()
-      const { data, error } = await supabase.rpc(INSERT_ENTRY_WITH_IMAGES_FUNCTION, {
-        project_id: Number(projectId),
-        entry_description: description,
-        image_urls: imageUrls,
-        today_day: todayDay
-      })
+        successMessage = 'Entry updated successfully!'
+      } else {
+        // Validate day sequence for new entries only
+        const insertResponse = await insertEntryOnDb(
+          description,
+          imageUrls
+        )
+        if (!insertResponse || insertResponse instanceof PostgrestError) throw new Error('Failed to create entry')
 
-      if (error) throw error
-      toast.success('Congratulations! You\'re one step closer to your goal!')
+        successMessage = 'Congratulations! You\'re one step closer to your goal!'
+      }     
+
+      toast.success(successMessage)
       router.push(`/${slug}/projects/${projectId}`)
     } catch (error) {
       console.error(error)
+      toast.error(isEditMode ? 'Failed to update entry' : 'Failed to create entry')
     } finally {
       setIsLoading(false)
     }
-  }, [isLoading, setIsLoading])
+  }, [isLoading, setIsLoading, toast, router, uploadImageToDb, isEditMode, updateEntryOnDb, insertEntryOnDb])
 
   const onSubmit = (data: FormData) => {
     handleFormSubmit(data)
@@ -138,9 +214,9 @@ export default function NewForm({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-2">
         <div className="flex flex-wrap items-center rounded-md border border-border border-dashed p-4 gap-4">
-          {imagesInput.map((url, index) => (
+          {imagesInput.map((image, index) => (
             <div className="relative" key={index}>
-              <ImageCard imageUrl={url} />
+              <ImageCard imageUrl={image.url} />
               <Button variant="neutral" size="icon" className="w-6 h-6 absolute top-0 right-0"
                 onClick={() => handleDeleteImage(index)}
               >
@@ -193,7 +269,7 @@ export default function NewForm({
         className="w-full neo-brutalism-button"
         disabled={!isValid || isLoading}
       >
-        {isLoading ? 'Pending...' : 'Create Entry'}
+        {isLoading ? 'Pending...' : isEditMode ? 'Update Entry' : 'Create Entry'}
       </Button>
       
     </form>

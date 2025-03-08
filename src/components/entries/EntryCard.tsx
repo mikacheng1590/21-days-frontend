@@ -1,21 +1,27 @@
 'use client'
 
-import { ProjectDialog } from './EntryDialog'
+import { EntryDialog } from './EntryDialog'
 import { EntryImage } from '@/lib/supabase/types'
 
-type ProjectCardProps = {
+type EntryCardProps = {
   description: string 
   day: number
   images: Pick<EntryImage, 'id' | 'image_url'>[]
   createdAt: string
+  entryId: number
+  isOwner: boolean
+  slug: string
 }
 
-export function ProjectCard({
+export function EntryCard({
   description,
   day,
   images,
-  createdAt
-}: ProjectCardProps) {
+  createdAt,
+  entryId,
+  isOwner,
+  slug
+}: EntryCardProps) {
   return (
     <>
       <figure className="w-full overflow-hidden rounded-base border-2 border-border bg-main font-base shadow-shadow">
@@ -23,11 +29,14 @@ export function ProjectCard({
           <figcaption className="border-t-2 text-mtext border-border p-4">
             <h6 className="text-lg font-bold mb-1">Day {day}</h6>
             <p className="text-sm line-clamp-3 mb-2 min-h-[calc(1.25rem*3)]">{description}</p>
-            <ProjectDialog
+            <EntryDialog
               description={description}
               day={day}
               images={images}
               createdAt={createdAt}
+              entryId={entryId}
+              isOwner={isOwner}
+              slug={slug}
             />
           </figcaption>
       </figure>
