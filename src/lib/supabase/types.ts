@@ -50,6 +50,10 @@ export type InsertEntryResult = {
   updated_status: string
 }
 
+export type InsertProjectResult = {
+  id: number
+}
+
 export type ProjectWithLatestEntry = Pick<Project, 'id' | 'target_days'> & {
   entries: Pick<Entry, 'id' | 'day' | 'created_at'>[]
 }
@@ -64,6 +68,6 @@ export type ProjectPublicView = Omit<Project, 'id' | 'user_id' | 'updated_at'> &
 
 export type ProjectSummary = Pick<Project, 'id' | 'title' | 'description' | 'target_days' | 'allow_skipped_days'>
 
-export type ProjectEditView = Pick<Project, 'id' | 'title' | 'description'>
+export type ProjectEditView = Pick<Project, 'id' | 'user_id' | 'title' | 'description'>
 
-export type insertUpdateError = PostgrestError | null
+export type UpdateResponse = PostgrestError | null

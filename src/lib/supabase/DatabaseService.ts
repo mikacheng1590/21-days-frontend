@@ -14,7 +14,8 @@ import {
   InsertEntryResult,
   BaseProject,
   ProjectEditView,
-  insertUpdateError
+  InsertProjectResult,
+  UpdateResponse
 } from "@/lib/supabase/types"
 
 export class DatabaseService {
@@ -46,11 +47,12 @@ export class DatabaseService {
     return error ? null : data
   }
 
-  async getActiveProjectById(projectId: number): Promise<ProjectSummary | null> {
+  async getActiveProjectById(projectId: number, userId: string): Promise<ProjectSummary | null> {
     const { data, error } = await this.supabase
       .from(TABLE_PROJECTS)
       .select('id, title, description, target_days, allow_skipped_days')
       .eq('id', projectId)
+      .eq('user_id', userId)
       .eq('status', PROJECT_STATUS_ACTIVE)
       .single()
 
@@ -64,7 +66,7 @@ export class DatabaseService {
     today_day: number
   ): Promise<InsertEntryResult | PostgrestError> {
     const { data, error } = await this.supabase.rpc(INSERT_ENTRY_WITH_IMAGES_FUNCTION, {
-      project_id: Number(projectId),
+      project_id: projectId,
       entry_description,
       image_urls,
       today_day
@@ -73,19 +75,21 @@ export class DatabaseService {
     return error ?? data
   }
 
-  async insertProject(project: BaseProject): Promise<insertUpdateError> {
+  async insertProject(project: BaseProject): Promise<InsertProjectResult[] | null> {
     const { data, error } = await this.supabase
       .from(TABLE_PROJECTS)
-      .insert([project])
+      .insert(project)
+      .select('id')
 
-    return error ?? data
+    return error ? null : data
   }
 
-  async updateProject(project: ProjectEditView): Promise<insertUpdateError> {
+  async updateProject(project: ProjectEditView): Promise<UpdateResponse> {
     const { data, error } = await this.supabase
       .from(TABLE_PROJECTS)
       .update(project)
       .eq('id', project.id)
+      .eq('user_id', project.user_id)
       .eq('status', PROJECT_STATUS_ACTIVE)
 
     return error ?? data

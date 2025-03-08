@@ -1,7 +1,7 @@
 import { PostgrestError } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/client/client"
 import { getUser } from "@/lib/supabase/client/auth"
-import { InsertEntryResult, ProjectWithLatestEntry, BaseProject, ProjectEditView, insertUpdateError } from "@/lib/supabase/types"
+import { InsertEntryResult, ProjectWithLatestEntry, BaseProject, ProjectEditView, UpdateResponse, InsertProjectResult } from "@/lib/supabase/types"
 import { DatabaseService } from "@/lib/supabase/DatabaseService"
 
 let dbService: DatabaseService | null = null
@@ -27,12 +27,12 @@ export const insertEntryAndUpdateProjectStatus = async (projectId: number, entry
   return db.insertEntryAndUpdateProjectStatus(projectId, entry_description, image_urls, today_day)
 }
 
-export const insertProject = async (project: BaseProject): Promise<insertUpdateError> => {
+export const insertProject = async (project: BaseProject): Promise<InsertProjectResult[] | null> => {
   const db = await getDbService()
   return db.insertProject(project)
 }
 
-export const updateProject = async (project: ProjectEditView): Promise<insertUpdateError> => {
+export const updateProject = async (project: ProjectEditView): Promise<UpdateResponse> => {
   const db = await getDbService()
   return db.updateProject(project)
 }

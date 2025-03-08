@@ -10,7 +10,7 @@ import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { PROJECT_STATUS_ACTIVE } from "@/lib/supabase/constants"
-import { ProjectSummary, insertUpdateError } from '@/lib/supabase/types'
+import { ProjectSummary, UpdateResponse } from '@/lib/supabase/types'
 import { cn } from "@/lib/tailwind/utils"
 import { insertProject, updateProject } from "@/lib/supabase/client/db"
 
@@ -64,18 +64,18 @@ export default function Form({
     }
 
     try {
-      let error: insertUpdateError = null
-      let successMessage = 'Project created successfully!'
+      let projectId = project?.id
       if (project) {
-        successMessage = 'Project updated successfully!'
-
-        error = await updateProject({
+        const error = await updateProject({
           id: project.id,
+          user_id: user.id,
           title: data.title,
           description: data.description,
         })
+
+        if (error) throw error        
       } else {
-        error = await insertProject({
+        const insertResult = await insertProject({
           title: data.title,
           description: data.description,
           user_id: user.id,
@@ -84,13 +84,15 @@ export default function Form({
           completed_days: 0,
           status: PROJECT_STATUS_ACTIVE
         })
-      }
 
-      if (error) throw error
+        if (!insertResult) throw new Error('Failed to create project')
+        projectId = insertResult[0].id
+      }
       
       reset()
+      const successMessage = formType === 'new' ? 'Project created successfully!' : 'Project updated successfully!'
       toast.success(successMessage)
-      router.push(`/${slug}/projects`)
+      router.push(`/${slug}/projects/${projectId}`)
     } catch (error) {
       console.error(error)
       const errorMessage = formType === 'new' ? 'Failed to create project. Please try again later.' : 'Failed to update project. Please try again later.'
