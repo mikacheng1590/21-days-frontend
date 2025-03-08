@@ -26,7 +26,7 @@ export default async function NewEntryPage({
 
   // today has an entry, cannot create a new one
   if (latestEntry.entries.length && isDateToday(latestEntry.entries[0].created_at)) {
-    redirect(`/${slug}/entries/${latestEntry.id}/edit?warning=potential-entry-for-today`)
+    redirect(`/${slug}/entries/${latestEntry.entries[0].id}/edit?warning=potential-entry-for-today`)
   } else if (latestEntry.entries.length) {
     todayDay = latestEntry.entries[0].day + 1
   }

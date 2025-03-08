@@ -20,19 +20,26 @@ import {
   UpdateResponse,
   EntryView
 } from "@/lib/supabase/types"
+import { BaseAuthService } from './AuthService'
 
 export class DatabaseService {
   private supabase: SupabaseClient
+  private authService: BaseAuthService
   
-  constructor(supabaseClient: SupabaseClient) {
+  constructor(supabaseClient: SupabaseClient, authService: BaseAuthService) {
     this.supabase = supabaseClient
+    this.authService = authService
   }
 
-  async getActiveProjectLatestEntry(projectId: number, userId: string): Promise<ProjectWithLatestEntry | null> {
+  async getActiveProjectLatestEntry(
+    projectId: number
+  ): Promise<ProjectWithLatestEntry | null> {
+    const user = await this.authService.getUser()
+
     const { data, error } = await this.supabase
       .from(TABLE_PROJECTS)
       .select(`id, target_days, ${TABLE_ENTRIES}!left(id, day, created_at)`)
-      .eq('user_id', userId)
+      .eq('user_id', user?.id)
       .eq('status', PROJECT_STATUS_ACTIVE)
       .eq('id', projectId)
       .order('day', { ascending: false, referencedTable: TABLE_ENTRIES })
