@@ -23,9 +23,9 @@ export const getProjectEntriesByProjectId = async (projectId: number, userId: st
   return db.getProjectEntriesByProjectId(projectId, userId)
 }
 
-export const getActiveProjectById = async (projectId: number, userId: string): Promise<ProjectSummary | null> => {
+export const getActiveProjectById = async (projectId: number): Promise<ProjectSummary | null> => {
   const db = await getDbService()
-  return db.getActiveProjectById(projectId, userId)
+  return db.getActiveProjectById(projectId)
 }
 
 export const getEntryById = async (entryId: number, userId: string): Promise<EntryView | null> => {

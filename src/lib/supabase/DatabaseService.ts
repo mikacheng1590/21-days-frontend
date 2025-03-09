@@ -58,12 +58,16 @@ export class DatabaseService {
     return error ? null : data
   }
 
-  async getActiveProjectById(projectId: number, userId: string): Promise<ProjectSummary | null> {
+  async getActiveProjectById(
+    projectId: number
+  ): Promise<ProjectSummary | null> {
+    const user = await this.authService.getUser()
+    if (!user) return null
     const { data, error } = await this.supabase
       .from(TABLE_PROJECTS)
       .select('id, title, description, target_days, allow_skipped_days')
       .eq('id', projectId)
-      .eq('user_id', userId)
+      .eq('user_id', user.id)
       .eq('status', PROJECT_STATUS_ACTIVE)
       .single()
 

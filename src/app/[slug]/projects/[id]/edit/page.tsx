@@ -19,7 +19,7 @@ export default async function EditProjectPage({
     notFound()
   }
   
-  const project = await getActiveProjectById(id, userSetting.user_id)
+  const project = await getActiveProjectById(id)
   if (!project) {
     redirect('/error')
   }
