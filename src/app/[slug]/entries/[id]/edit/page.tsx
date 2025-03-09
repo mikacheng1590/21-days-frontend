@@ -1,6 +1,5 @@
-import { notFound, redirect } from "next/navigation"
+import { redirect } from "next/navigation"
 import Toast from "@/components/entries/Toast"
-import { getUserSettingBySlug } from "@/lib/supabase/server/auth"
 import { getEntryById } from "@/lib/supabase/server/db"
 import NewForm from "@/components/entries/NewForm"
 
@@ -15,12 +14,8 @@ export default async function EditEntryPage({
   params
 }: EditEntryPageProps) {
   const { slug, id } = await params
-  const userSetting = await getUserSettingBySlug(slug)
-  if (!userSetting) {
-    notFound()
-  }
 
-  const entry = await getEntryById(id, userSetting.user_id)
+  const entry = await getEntryById(id)
   if (!entry) {
     redirect('/error')
   }

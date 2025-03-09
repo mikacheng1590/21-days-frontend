@@ -74,14 +74,16 @@ export class DatabaseService {
     return error ? null : data
   }
 
-  async getEntryById(entryId: number, userId: string): Promise<EntryView | null> {
+  async getEntryById(entryId: number): Promise<EntryView | null> {
+    const user = await this.authService.getUser()
+    if (!user) return null
     const { data, error } = await this.supabase
       .rpc(GET_ACTIVE_PROJECT_LATEST_ENTRY_FUNCTION, {
         current_entry_id: entryId,
-        current_user_id: userId
+        current_user_id: user.id
       })
 
-      return error ? null : data
+    return error ? null : data
   }
 
   async insertEntryAndUpdateProjectStatus(
