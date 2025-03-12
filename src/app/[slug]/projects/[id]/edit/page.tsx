@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation"
 import NewForm from "@/components/projects/Form"
-import { getActiveProjectById } from "@/lib/supabase/server/db"
+import { serverDbService } from "@/lib/supabase/server/db"
 import { serverUserService } from "@/lib/supabase/server/user"
 
 type EditProjectPageProps = {
@@ -20,7 +20,7 @@ export default async function EditProjectPage({
     notFound()
   }
   
-  const { data: project, success } = await getActiveProjectById(id)
+  const { data: project, success } = await serverDbService.getActiveProjectById(id)
   if (!success || !project) {
     redirect('/error')
   }

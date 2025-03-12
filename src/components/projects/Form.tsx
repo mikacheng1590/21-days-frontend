@@ -12,7 +12,7 @@ import { useAuth } from '@/components/providers/AuthProvider'
 import { PROJECT_STATUS_ACTIVE } from "@/lib/supabase/constants"
 import { ProjectSummary } from '@/lib/supabase/types'
 import { cn } from "@/lib/tailwind/utils"
-import { insertProject, updateProject } from "@/lib/supabase/client/db"
+import { clientDbService } from "@/lib/supabase/client/db"
 
 type FormData = {
   title: string
@@ -66,7 +66,7 @@ export default function Form({
     try {
       let projectId = project?.id
       if (project) {
-        const { error: updateError } = await updateProject({
+        const { error: updateError } = await clientDbService.updateProject({
           id: project.id,
           user_id: user.id,
           title: data.title,
@@ -76,7 +76,7 @@ export default function Form({
 
         if (updateError) throw updateError        
       } else {
-        const { success: insertSuccess, error: insertError, data: insertResult } = await insertProject({
+        const { success: insertSuccess, error: insertError, data: insertResult } = await clientDbService.insertProject({
           title: data.title,
           description: data.description,
           user_id: user.id,
@@ -101,7 +101,7 @@ export default function Form({
     } finally {
       setIsLoading(false)
     }
-  }, [isLoading, setIsLoading, user, toast, router, reset, updateProject, insertProject])
+  }, [isLoading, setIsLoading, user, toast, router, reset, clientDbService.updateProject, clientDbService.insertProject])
 
   const onSubmit = async (data: FormData) => {
     handleFormSubmit(data)

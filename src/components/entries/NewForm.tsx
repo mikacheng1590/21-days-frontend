@@ -11,7 +11,7 @@ import ImageCard from "@/components/ui/image-card"
 import { Textarea } from "@/components/ui/textarea"
 import { convertBlobUrlToFile } from "@/lib/image/utils"
 import { uploadImage } from "@/lib/supabase/client/storage"
-import { getActiveProjectLatestEntry, insertEntryAndUpdateProjectStatus, updateEntry } from "@/lib/supabase/client/db"
+import { clientDbService } from "@/lib/supabase/client/db"
 import { EntryView } from "@/lib/supabase/types"
 import { useAuth } from "@/components/providers/AuthProvider"
 
@@ -118,7 +118,7 @@ export default function NewForm({
       return { success: false, error: null }
     }
 
-    const { error: editError, success: editResponseSuccess } = await updateEntry(
+    const { error: editError, success: editResponseSuccess } = await clientDbService.updateEntry(
       entry.id,
       user.id,
       description,
@@ -129,11 +129,11 @@ export default function NewForm({
       success: editResponseSuccess,
       error: editError
     }
-  }, [updateEntry, entry, user, imagesToDelete])
+  }, [clientDbService.updateEntry, entry, user, imagesToDelete])
 
   const insertEntryOnDb = useCallback(async (description: string, imageUrls: string[]): Promise<boolean | PostgrestError> => {
     // Validate day sequence for new entries only
-    const { data: latestEntry, success: latestEntrySuccess } = await getActiveProjectLatestEntry(projectId)
+    const { data: latestEntry, success: latestEntrySuccess } = await clientDbService.getActiveProjectLatestEntry(projectId)
     if (!latestEntrySuccess) {
       throw new Error('User/ project not found')
     }
@@ -144,7 +144,7 @@ export default function NewForm({
     }
 
     // Insert new entry
-    const { error: insertError, success: insertResponseSuccess } = await insertEntryAndUpdateProjectStatus(
+    const { error: insertError, success: insertResponseSuccess } = await clientDbService.insertEntryAndUpdateProjectStatus(
       projectId,
       description,
       imageUrls,
@@ -153,7 +153,7 @@ export default function NewForm({
     if (!insertResponseSuccess) throw insertError
 
     return true
-  }, [insertEntryAndUpdateProjectStatus, projectId, todayDay])
+  }, [clientDbService.getActiveProjectLatestEntry, clientDbService.insertEntryAndUpdateProjectStatus, projectId, todayDay])
 
   const handleFormSubmit = useCallback(async(formData: FormData) => {
     if (isLoading) return

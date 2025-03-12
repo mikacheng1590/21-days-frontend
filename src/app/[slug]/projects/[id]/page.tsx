@@ -2,7 +2,7 @@ import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { getProjectEntriesByProjectId } from "@/lib/supabase/server/db"
+import { serverDbService } from "@/lib/supabase/server/db"
 import { serverUserService } from '@/lib/supabase/server/user'
 import { ProjectCollapsible } from "@/components/projects/ProjectCollapsible"
 import { EntryGrid } from "@/components/projects/EntryGrid"
@@ -17,7 +17,7 @@ export default async function ProjectPage({
     notFound()
   }
 
-  const { data, success } = await getProjectEntriesByProjectId(id, userSetting.user_id)
+  const { data, success } = await serverDbService.getProjectEntriesByProjectId(id, userSetting.user_id)
   if (!success || !data) {
     redirect('/error')
   }

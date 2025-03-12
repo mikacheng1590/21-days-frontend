@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import Toast from "@/components/entries/Toast"
-import { getEntryById } from "@/lib/supabase/server/db"
+import { serverDbService } from "@/lib/supabase/server/db"
 import NewForm from "@/components/entries/NewForm"
 
 type EditEntryPageProps = {
@@ -15,7 +15,7 @@ export default async function EditEntryPage({
 }: EditEntryPageProps) {
   const { slug, id } = await params
 
-  const { data: entry, success } = await getEntryById(id)
+  const { data: entry, success } = await serverDbService.getEntryById(id)
   if (!success || !entry) {
     redirect('/error')
   }

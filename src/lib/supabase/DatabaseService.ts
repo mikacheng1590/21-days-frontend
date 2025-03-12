@@ -22,16 +22,20 @@ import {
 import { BaseUserService } from "@/lib/supabase/UserService"
 import { handleResponse, Response } from "@/lib/supabase/response"
 
-export class DatabaseService {
-  private supabase: SupabaseClient
+export class BaseDatabaseService<T extends SupabaseClient | Promise<SupabaseClient>> {
+  protected supabaseClientFunc: () => T;
   protected userService: BaseUserService<SupabaseClient | Promise<SupabaseClient>>;
 
   constructor(
-    supabaseClient: SupabaseClient,
+    supabaseClientFunc: () => T,
     userService: BaseUserService<SupabaseClient | Promise<SupabaseClient>>
   ) {
-    this.supabase = supabaseClient
+    this.supabaseClientFunc = supabaseClientFunc
     this.userService = userService
+  }
+
+  protected async getSupabase(): Promise<T> {
+    return await this.supabaseClientFunc();
   }
 
   async getActiveProjectLatestEntry(
@@ -45,7 +49,8 @@ export class DatabaseService {
       })
     }
 
-    const { data, error } = await this.supabase
+    const supabase = await this.getSupabase();
+    const { data, error } = await supabase
       .from(TABLE_PROJECTS)
       .select(`id, target_days, ${TABLE_ENTRIES}!left(id, day, created_at)`)
       .eq('user_id', user?.id)
@@ -61,7 +66,8 @@ export class DatabaseService {
   }
 
   async getProjectEntriesByProjectId(projectId: number, userId: string): Promise<Response<ProjectPublicView | null, PostgrestError>> {
-    const { data, error } = await this.supabase
+    const supabase = await this.getSupabase();
+    const { data, error } = await supabase
     .rpc(GET_PROJECT_ENTRIES_BY_PROJECT_ID_FUNCTION, {
       current_project_id: projectId,
       current_user_id: userId
@@ -83,7 +89,9 @@ export class DatabaseService {
         error: userError
       })
     }
-    const { data, error } = await this.supabase
+
+    const supabase = await this.getSupabase();
+    const { data, error } = await supabase
       .from(TABLE_PROJECTS)
       .select('id, title, description, target_days, allow_skipped_days')
       .eq('id', projectId)
@@ -107,7 +115,9 @@ export class DatabaseService {
         error: userError
       })
     }
-    const { data, error } = await this.supabase
+
+    const supabase = await this.getSupabase();
+    const { data, error } = await supabase
       .rpc(GET_ACTIVE_PROJECT_LATEST_ENTRY_FUNCTION, {
         current_entry_id: entryId,
         current_user_id: user.id
@@ -125,7 +135,8 @@ export class DatabaseService {
     image_urls: string[],
     today_day: number
   ): Promise<Response<InsertEntryResult | PostgrestError, PostgrestError>> {
-    const { data, error } = await this.supabase
+    const supabase = await this.getSupabase();
+    const { data, error } = await supabase
       .rpc(INSERT_ENTRY_WITH_IMAGES_FUNCTION, {
         project_id: projectId,
         entry_description,
@@ -140,7 +151,8 @@ export class DatabaseService {
   }
 
   async updateEntry(entryId: number, userId: string, description: string, imageUrls: string[], deletedImageUrls: string[]): Promise<Response<boolean | PostgrestError, PostgrestError>> {
-    const { data, error } = await this.supabase
+    const supabase = await this.getSupabase();
+    const { data, error } = await supabase
       .rpc(UPDATE_ENTRY_WITH_IMAGES_FUNCTION, {
         current_entry_id: entryId,
         current_user_id: userId,
@@ -156,7 +168,8 @@ export class DatabaseService {
   }
 
   async insertProject(project: BaseProject): Promise<Response<InsertProjectResult[] | null, PostgrestError>> {
-    const { data, error } = await this.supabase
+    const supabase = await this.getSupabase();
+    const { data, error } = await supabase
       .from(TABLE_PROJECTS)
       .insert(project)
       .select('id')
@@ -168,7 +181,8 @@ export class DatabaseService {
   }
 
   async updateProject(project: ProjectEditView): Promise<Response<UpdateResponse, PostgrestError>> {
-    const { data, error } = await this.supabase
+    const supabase = await this.getSupabase();
+    const { data, error } = await supabase
       .from(TABLE_PROJECTS)
       .update(project)
       .eq('id', project.id)

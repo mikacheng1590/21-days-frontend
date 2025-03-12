@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import NewForm from "@/components/entries/NewForm"
-import { getActiveProjectLatestEntry } from "@/lib/supabase/server/db"
+import { serverDbService } from "@/lib/supabase/server/db"
 import { isDateToday } from "@/lib/datetime/utils"
 
 type NewEntryPageProps = {  
@@ -17,7 +17,7 @@ export default async function NewEntryPage({
   const { projectId, slug } = await params
 
   // check if project exists AND is active, if so return the latest entry
-  const { data: latestEntry, success: latestEntrySuccess } = await getActiveProjectLatestEntry(projectId)
+  const { data: latestEntry, success: latestEntrySuccess } = await serverDbService.getActiveProjectLatestEntry(projectId)
   if (!latestEntrySuccess || !latestEntry) {
     redirect('/error')
   }
