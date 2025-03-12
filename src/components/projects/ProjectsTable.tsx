@@ -261,6 +261,11 @@ export default function ProjectsTable({
     setTableState()
   }, [isLoading, data])
 
+  useEffect(() => {
+    console.log(rowSelection)
+    console.log(data.filter((project, idx) => Object.keys(rowSelection).includes(idx.toString())))
+  }, [rowSelection])
+
   const table = useReactTable({
     data,
     meta: {
@@ -273,7 +278,10 @@ export default function ProjectsTable({
       pagination: {
         pageIndex,
         pageSize,
-      }
+      },
+      columnFilters,
+      columnVisibility,
+      rowSelection,
     },
     manualPagination: true,
     onPaginationChange: (updater) => {
