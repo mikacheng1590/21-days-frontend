@@ -10,12 +10,12 @@ export class BaseUserService<T extends SupabaseClient | Promise<SupabaseClient>>
     this.supabaseClientFunc = supabaseClientFunc;
   }
 
-  protected getSupabase(): T {
-    return this.supabaseClientFunc();
+  protected async getSupabase(): Promise<T> {
+    return await this.supabaseClientFunc();
   }
 
   async getUser(): Promise<Response<User | null, AuthError | null>> {
-    const supabase = await this.getSupabase(); // Works for both sync & async clients
+    const supabase = await this.getSupabase();
     const { data: { user }, error } = await supabase.auth.getUser();
 
     return handleResponse({
