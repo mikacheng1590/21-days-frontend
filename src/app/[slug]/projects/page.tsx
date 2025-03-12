@@ -12,8 +12,8 @@ export default async function ProjectsPage({
 }) {
   const { slug } = await params
 
-  const userSetting = await serverUserService.getUserSettingBySlug(slug)
-  if (!userSetting) {
+  const { data: userSetting, success: userSettingSuccess } = await serverUserService.getUserSettingBySlug(slug)
+  if (!userSettingSuccess || !userSetting) {
     notFound()
   }
 

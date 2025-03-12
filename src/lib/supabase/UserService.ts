@@ -1,4 +1,4 @@
-import { SupabaseClient, User, AuthError } from "@supabase/supabase-js";
+import { SupabaseClient, User, AuthError, PostgrestError } from "@supabase/supabase-js";
 import { Response, handleResponse } from "@/lib/supabase/response";
 import { TABLE_USERS_SETTING } from "@/lib/supabase/constants";
 import { BaseUserData } from "@/lib/supabase/types";
@@ -24,39 +24,51 @@ export class BaseUserService<T extends SupabaseClient | Promise<SupabaseClient>>
     });
   }
 
-  async getSlugByUser(): Promise<string | null> {
-    const { data: user, success: userSuccess } = await this.getUser()
+  async getSlugByUser(): Promise<Response<User | string | null, AuthError | PostgrestError | null>> {
+    const res = await this.getUser()
+    const { data: user, success: userSuccess } = res
     if (!userSuccess || !user) {
-      return null
+      return res
     }
 
     return this.getSlugByUserId(user.id)
   }
 
-  async getSlugByUserId(userId: string): Promise<string | null> {
+  async getSlugByUserId(userId: string): Promise<Response<string | null, PostgrestError | null>> {
     const supabase = await this.getSupabase()
-    const response = await supabase
+    const { data, error } = await supabase
       .from(TABLE_USERS_SETTING)
       .select('slug')
       .eq('user_id', userId)
       .single()
     
-    return response.data?.slug
+    return handleResponse({
+      data: data?.slug,
+      error,
+    })
   }
 
-  async getUserSettingBySlug(slug: string): Promise<BaseUserData | null> {
+  async getUserSettingBySlug(slug: string): Promise<Response<BaseUserData | null, PostgrestError | null>> {
     const supabase = await this.getSupabase()
-    const response = await supabase
+    const { data, error } = await supabase
       .from(TABLE_USERS_SETTING)
       .select('user_id, username, preferred_email, slug')
       .eq('slug', slug)
       .single()
     
-    return response.data
+    return handleResponse({
+      data,
+      error,
+    })
   }
 
   async isPageOwner(pageSlug: string): Promise<boolean> {
     const currentSlug = await this.getSlugByUser()
-    return currentSlug === pageSlug
+    const { data: currentSlugData, success: currentSlugSuccess } = currentSlug
+    if (!currentSlugSuccess || !currentSlugData) {
+      return false
+    }
+
+    return currentSlugData === pageSlug
   }
 }

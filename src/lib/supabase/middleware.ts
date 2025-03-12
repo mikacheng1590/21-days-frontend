@@ -35,7 +35,7 @@ export const updateSession = async (request: NextRequest) => {
   }   
 
   if (user) {
-    const slug = await serverUserService.getSlugByUserId(user.id)
+    const { data: slug } = await serverUserService.getSlugByUserId(user.id)
 
     // check if user has set up setting
     if (request.nextUrl.pathname !== '/welcome' && !slug) {
