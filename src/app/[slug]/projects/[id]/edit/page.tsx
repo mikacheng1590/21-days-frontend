@@ -1,7 +1,7 @@
-import NewForm from "@/components/projects/Form"
-import { getUserSettingBySlug } from "@/lib/supabase/server/auth"
-import { getActiveProjectById } from "@/lib/supabase/server/db"
 import { notFound, redirect } from "next/navigation"
+import NewForm from "@/components/projects/Form"
+import { getActiveProjectById } from "@/lib/supabase/server/db"
+import { serverUserService } from "@/lib/supabase/server/user"
 
 type EditProjectPageProps = {
   params: {
@@ -14,13 +14,14 @@ export default async function EditProjectPage({
   params
 }: EditProjectPageProps) {
   const { slug, id } = await params
-  const userSetting = await getUserSettingBySlug(slug)
+
+  const userSetting = await serverUserService.getUserSettingBySlug(slug)
   if (!userSetting) {
     notFound()
   }
   
-  const project = await getActiveProjectById(id)
-  if (!project) {
+  const { data: project, success } = await getActiveProjectById(id)
+  if (!success || !project) {
     redirect('/error')
   }
 

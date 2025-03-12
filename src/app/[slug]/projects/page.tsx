@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import { notFound } from "next/navigation"
 import { Plus } from "lucide-react"
-import { isPageOwner, getUserSettingBySlug } from "@/lib/supabase/server/auth"
 import { Button } from '@/components/ui/button'
 import ProjectsTable from '@/components/projects/ProjectsTable'
+import { serverUserService } from '@/lib/supabase/server/user'
 
 export default async function ProjectsPage({
   params,
@@ -12,12 +12,12 @@ export default async function ProjectsPage({
 }) {
   const { slug } = await params
 
-  const userSetting = await getUserSettingBySlug(slug)
+  const userSetting = await serverUserService.getUserSettingBySlug(slug)
   if (!userSetting) {
     notFound()
   }
-  
-  const isOwner = await isPageOwner(slug)
+
+  const isOwner = await serverUserService.isPageOwner(slug)
   
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

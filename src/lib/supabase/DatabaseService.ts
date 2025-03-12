@@ -1,5 +1,4 @@
-import { SupabaseClient } from '@supabase/supabase-js'
-import { PostgrestError } from "@supabase/supabase-js"
+import { SupabaseClient, PostgrestError, AuthError } from '@supabase/supabase-js'
 import {
   PROJECT_STATUS_ACTIVE,
   TABLE_PROJECTS,
@@ -20,21 +19,31 @@ import {
   UpdateResponse,
   EntryView
 } from "@/lib/supabase/types"
-import { BaseAuthService } from './AuthService'
+import { BaseUserService } from "@/lib/supabase/UserService"
+import { handleResponse, Response } from "@/lib/supabase/response"
 
 export class DatabaseService {
   private supabase: SupabaseClient
-  private authService: BaseAuthService
-  
-  constructor(supabaseClient: SupabaseClient, authService: BaseAuthService) {
+  protected userService: BaseUserService<SupabaseClient | Promise<SupabaseClient>>;
+
+  constructor(
+    supabaseClient: SupabaseClient,
+    userService: BaseUserService<SupabaseClient | Promise<SupabaseClient>>
+  ) {
     this.supabase = supabaseClient
-    this.authService = authService
+    this.userService = userService
   }
 
   async getActiveProjectLatestEntry(
     projectId: number
-  ): Promise<ProjectWithLatestEntry | null> {
-    const user = await this.authService.getUser()
+  ): Promise<Response<ProjectWithLatestEntry | null, AuthError | PostgrestError>> {
+    const { data: user, error: userError } = await this.userService.getUser()
+    if (userError || !user) {
+      return handleResponse({
+        data: null,
+        error: userError
+      })
+    }
 
     const { data, error } = await this.supabase
       .from(TABLE_PROJECTS)
@@ -45,24 +54,35 @@ export class DatabaseService {
       .order('day', { ascending: false, referencedTable: TABLE_ENTRIES })
       .single()
 
-    return error ? null : data
+    return handleResponse({
+      data,
+      error
+    })
   }
 
-  async getProjectEntriesByProjectId(projectId: number, userId: string): Promise<ProjectPublicView | null> {
+  async getProjectEntriesByProjectId(projectId: number, userId: string): Promise<Response<ProjectPublicView | null, PostgrestError>> {
     const { data, error } = await this.supabase
     .rpc(GET_PROJECT_ENTRIES_BY_PROJECT_ID_FUNCTION, {
       current_project_id: projectId,
       current_user_id: userId
     })
 
-    return error ? null : data
+    return handleResponse({
+      data,
+      error
+    })
   }
 
   async getActiveProjectById(
     projectId: number
-  ): Promise<ProjectSummary | null> {
-    const user = await this.authService.getUser()
-    if (!user) return null
+  ): Promise<Response<ProjectSummary | null, AuthError | PostgrestError>> {
+    const { data: user, error: userError } = await this.userService.getUser()
+    if (userError || !user) {
+      return handleResponse({
+        data: null,
+        error: userError
+      })
+    }
     const { data, error } = await this.supabase
       .from(TABLE_PROJECTS)
       .select('id, title, description, target_days, allow_skipped_days')
@@ -71,19 +91,32 @@ export class DatabaseService {
       .eq('status', PROJECT_STATUS_ACTIVE)
       .single()
 
-    return error ? null : data
+    return handleResponse({
+      data,
+      error
+    })
   }
 
-  async getEntryById(entryId: number): Promise<EntryView | null> {
-    const user = await this.authService.getUser()
-    if (!user) return null
+  async getEntryById(
+    entryId: number
+  ): Promise<Response<EntryView | null, AuthError | PostgrestError>> {
+    const { data: user, error: userError } = await this.userService.getUser()
+    if (userError || !user) {
+      return handleResponse({
+        data: null,
+        error: userError
+      })
+    }
     const { data, error } = await this.supabase
       .rpc(GET_ACTIVE_PROJECT_LATEST_ENTRY_FUNCTION, {
         current_entry_id: entryId,
         current_user_id: user.id
       })
 
-    return error ? null : data
+    return handleResponse({
+      data,
+      error
+    })
   }
 
   async insertEntryAndUpdateProjectStatus(
@@ -91,7 +124,7 @@ export class DatabaseService {
     entry_description: string,
     image_urls: string[],
     today_day: number
-  ): Promise<InsertEntryResult | PostgrestError> {
+  ): Promise<Response<InsertEntryResult | PostgrestError, PostgrestError>> {
     const { data, error } = await this.supabase
       .rpc(INSERT_ENTRY_WITH_IMAGES_FUNCTION, {
         project_id: projectId,
@@ -100,10 +133,13 @@ export class DatabaseService {
         today_day
       })
 
-    return error ?? data
+    return handleResponse({
+      data,
+      error
+    })
   }
 
-  async updateEntry(entryId: number, userId: string, description: string, imageUrls: string[], deletedImageUrls: string[]): Promise<boolean | PostgrestError> {
+  async updateEntry(entryId: number, userId: string, description: string, imageUrls: string[], deletedImageUrls: string[]): Promise<Response<boolean | PostgrestError, PostgrestError>> {
     const { data, error } = await this.supabase
       .rpc(UPDATE_ENTRY_WITH_IMAGES_FUNCTION, {
         current_entry_id: entryId,
@@ -113,19 +149,25 @@ export class DatabaseService {
         deleted_image_url_array: deletedImageUrls
       })
 
-    return error ?? data
+    return handleResponse({
+      data,
+      error
+    })
   }
 
-  async insertProject(project: BaseProject): Promise<InsertProjectResult[] | null> {
+  async insertProject(project: BaseProject): Promise<Response<InsertProjectResult[] | null, PostgrestError>> {
     const { data, error } = await this.supabase
       .from(TABLE_PROJECTS)
       .insert(project)
       .select('id')
 
-    return error ? null : data
+    return handleResponse({
+      data,
+      error
+    })
   }
 
-  async updateProject(project: ProjectEditView): Promise<UpdateResponse> {
+  async updateProject(project: ProjectEditView): Promise<Response<UpdateResponse, PostgrestError>> {
     const { data, error } = await this.supabase
       .from(TABLE_PROJECTS)
       .update(project)
@@ -133,6 +175,9 @@ export class DatabaseService {
       .eq('user_id', project.user_id)
       .eq('status', PROJECT_STATUS_ACTIVE)
 
-    return error ?? data
+    return handleResponse({
+      data,
+      error
+    })
   }
 } 

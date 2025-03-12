@@ -10,7 +10,7 @@ import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { PROJECT_STATUS_ACTIVE } from "@/lib/supabase/constants"
-import { ProjectSummary, UpdateResponse } from '@/lib/supabase/types'
+import { ProjectSummary } from '@/lib/supabase/types'
 import { cn } from "@/lib/tailwind/utils"
 import { insertProject, updateProject } from "@/lib/supabase/client/db"
 
@@ -66,7 +66,7 @@ export default function Form({
     try {
       let projectId = project?.id
       if (project) {
-        const error = await updateProject({
+        const { error: updateError } = await updateProject({
           id: project.id,
           user_id: user.id,
           title: data.title,
@@ -74,9 +74,9 @@ export default function Form({
           updated_at: new Date().toISOString()
         })
 
-        if (error) throw error        
+        if (updateError) throw updateError        
       } else {
-        const insertResult = await insertProject({
+        const { success: insertSuccess, error: insertError, data: insertResult } = await insertProject({
           title: data.title,
           description: data.description,
           user_id: user.id,
@@ -86,8 +86,8 @@ export default function Form({
           status: PROJECT_STATUS_ACTIVE
         })
 
-        if (!insertResult) throw new Error('Failed to create project')
-        projectId = insertResult[0].id
+        if (!insertSuccess) throw insertError
+        projectId = insertResult?.[0]?.id
       }
       
       reset()

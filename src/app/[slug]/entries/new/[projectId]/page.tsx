@@ -17,17 +17,17 @@ export default async function NewEntryPage({
   const { projectId, slug } = await params
 
   // check if project exists AND is active, if so return the latest entry
-  const latestEntry = await getActiveProjectLatestEntry(projectId)
-  if (!latestEntry) {
+  const { data: latestEntry, success: latestEntrySuccess } = await getActiveProjectLatestEntry(projectId)
+  if (!latestEntrySuccess || !latestEntry) {
     redirect('/error')
   }
 
   let todayDay = 1
 
   // today has an entry, cannot create a new one
-  if (latestEntry.entries.length && isDateToday(latestEntry.entries[0].created_at)) {
+  if (latestEntry?.entries.length && isDateToday(latestEntry.entries[0].created_at)) {
     redirect(`/${slug}/entries/${latestEntry.entries[0].id}/edit?warning=potential-entry-for-today`)
-  } else if (latestEntry.entries.length) {
+  } else if (latestEntry?.entries.length) {
     todayDay = latestEntry.entries[0].day + 1
   }
 
@@ -40,7 +40,7 @@ export default async function NewEntryPage({
             Tell me what you achieved today
           </p>
           <p className="text-muted-foreground mt-2">
-            Day {todayDay} of {latestEntry.target_days} days
+            Day {todayDay} of {latestEntry?.target_days} days
           </p>
         </div>
 

@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getProjectEntriesByProjectId } from "@/lib/supabase/server/db"
-import { getUserSettingBySlug, isPageOwner } from "@/lib/supabase/server/auth"
+import { serverUserService } from '@/lib/supabase/server/user'
 import { ProjectCollapsible } from "@/components/projects/ProjectCollapsible"
 import { EntryGrid } from "@/components/projects/EntryGrid"
 
@@ -11,17 +11,18 @@ export default async function ProjectPage({
   params
 }: { params: { id: number, slug: string} }) {
   const { id, slug } = await params
-  const userSetting = await getUserSettingBySlug(slug)
+
+  const userSetting = await serverUserService.getUserSettingBySlug(slug)
   if (!userSetting) {
     notFound()
   }
 
-  const data = await getProjectEntriesByProjectId(id, userSetting.user_id)
-  if (!data) {
+  const { data, success } = await getProjectEntriesByProjectId(id, userSetting.user_id)
+  if (!success || !data) {
     redirect('/error')
   }
 
-  const isOwner = await isPageOwner(slug)
+  const isOwner = await serverUserService.isPageOwner(slug)
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

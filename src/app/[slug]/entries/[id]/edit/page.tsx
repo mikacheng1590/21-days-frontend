@@ -15,8 +15,8 @@ export default async function EditEntryPage({
 }: EditEntryPageProps) {
   const { slug, id } = await params
 
-  const entry = await getEntryById(id)
-  if (!entry) {
+  const { data: entry, success } = await getEntryById(id)
+  if (!success || !entry) {
     redirect('/error')
   }
   

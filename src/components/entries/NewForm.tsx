@@ -113,38 +113,44 @@ export default function NewForm({
     return imageUrls
   }, [convertBlobUrlToFile, uploadImage])
 
-  const updateEntryOnDb = useCallback(async (description: string, imageUrls: string[]): Promise<boolean | PostgrestError> => {
-    if (!entry || !user) return false
-    const editResponse = await updateEntry(
+  const updateEntryOnDb = useCallback(async (description: string, imageUrls: string[]): Promise<{ success: boolean, error: PostgrestError | null }> => {
+    if (!entry || !user) {
+      return { success: false, error: null }
+    }
+
+    const { error: editError, success: editResponseSuccess } = await updateEntry(
       entry.id,
       user.id,
       description,
       imageUrls,
       imagesToDelete) 
 
-    return editResponse
+    return {
+      success: editResponseSuccess,
+      error: editError
+    }
   }, [updateEntry, entry, user, imagesToDelete])
 
   const insertEntryOnDb = useCallback(async (description: string, imageUrls: string[]): Promise<boolean | PostgrestError> => {
     // Validate day sequence for new entries only
-    const latestEntry = await getActiveProjectLatestEntry(projectId)
-    if (!latestEntry) {
+    const { data: latestEntry, success: latestEntrySuccess } = await getActiveProjectLatestEntry(projectId)
+    if (!latestEntrySuccess) {
       throw new Error('User/ project not found')
     }
 
-    const latestEntryDay = latestEntry.entries.length ? latestEntry.entries[0].day : 0
+    const latestEntryDay = latestEntry?.entries.length ? latestEntry.entries[0].day : 0
     if (!todayDay || (todayDay && todayDay - latestEntryDay !== 1)) {
       throw new Error('Something wrong with the day. Please refresh the page.')
     }
 
     // Insert new entry
-    const insertResponse = await insertEntryAndUpdateProjectStatus(
+    const { error: insertError, success: insertResponseSuccess } = await insertEntryAndUpdateProjectStatus(
       projectId,
       description,
       imageUrls,
       todayDay
     )
-    if (insertResponse instanceof PostgrestError) throw insertResponse
+    if (!insertResponseSuccess) throw insertError
 
     return true
   }, [insertEntryAndUpdateProjectStatus, projectId, todayDay])
@@ -167,11 +173,14 @@ export default function NewForm({
       const imageUrls = await uploadImageToDb(images)
 
       if (isEditMode) {
-        const editResponse = await updateEntryOnDb(
+        const { success: editSuccess, error: editError } = await updateEntryOnDb(
           description,
           imageUrls,
         )
-        if (!editResponse || editResponse instanceof PostgrestError) throw new Error('Failed to update entry')
+        if (!editSuccess) {
+          let e = editError ?? new Error('Failed to update entry as entry/ user not found')
+          throw e
+        }
 
         successMessage = 'Entry updated successfully!'
       } else {

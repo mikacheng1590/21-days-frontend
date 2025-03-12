@@ -1,21 +1,20 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { createClient } from '@/lib/supabase/server/client'
-import { getUser, getSlugByUserId } from '@/lib/supabase/server/auth'
+import { serverUserService } from '@/lib/supabase/server/user'
 
 export const updateSession = async (request: NextRequest) => {
   let supabaseResponse = NextResponse.next({
     request,
   })
 
-  const supabase = await createClient()
+  // const supabase = await createClient()
 
   // Do not run code between createServerClient and
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
   // IMPORTANT: DO NOT REMOVE auth.getUser()
-
-  const user = await getUser()
+  // const { data: { user } } = await supabase.auth.getUser()
+  const { data: user } = await serverUserService.getUser()
 
   const needEditAccessPathNames = ['/new', '/edit']
   const url = request.nextUrl.clone()
@@ -36,7 +35,7 @@ export const updateSession = async (request: NextRequest) => {
   }   
 
   if (user) {
-    const slug = await getSlugByUserId(user.id)
+    const slug = await serverUserService.getSlugByUserId(user.id)
 
     // check if user has set up setting
     if (request.nextUrl.pathname !== '/welcome' && !slug) {
