@@ -62,6 +62,30 @@ export class BaseUserService<T extends SupabaseClient | Promise<SupabaseClient>>
     })
   }
 
+  async insertUserSetting(
+    userId: string,
+    preferredEmail: string,
+    username: string,
+    slug: string
+  ): Promise<Response<null, PostgrestError>> {
+    const supabase = await this.getSupabase()
+    const { data, error } = await supabase
+      .from(TABLE_USERS_SETTING)
+      .insert([
+        {
+          user_id: userId,
+          preferred_email: preferredEmail,
+          username,
+          slug
+        }
+      ])
+      
+    return handleResponse({
+      data,
+      error,
+    })
+  } 
+
   async isPageOwner(pageSlug: string): Promise<boolean> {
     const currentSlug = await this.getSlugByUser()
     const { data: currentSlugData, success: currentSlugSuccess } = currentSlug

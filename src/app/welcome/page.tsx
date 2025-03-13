@@ -3,13 +3,13 @@
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
-import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client/client'
+import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { SUPABASE_DB_ERROR_DUPLICATE_KEY, TABLE_USERS_SETTING } from '@/lib/supabase/constants'
+import { SUPABASE_DB_ERROR_DUPLICATE_KEY } from '@/lib/supabase/constants'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { trimText, slugifyText } from '@/lib/text/utils'
+import { clientUserService } from '@/lib/supabase/client/user'
 
 type FormData = {
   email: string
@@ -20,7 +20,6 @@ export default function Welcome() {
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const supabase = createClient()
   
   const {
     register,
@@ -38,7 +37,7 @@ export default function Welcome() {
     }
   }, [user, setValue])
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = useCallback(async (data: FormData) => {
     if (!user || isLoading) return
 
     setIsLoading(true)
@@ -47,16 +46,7 @@ export default function Welcome() {
       const cleanedUsername = trimText(data.username)
       const slug = slugifyText(cleanedUsername)
 
-      const { error } = await supabase
-        .from(TABLE_USERS_SETTING)
-        .insert([
-          {
-            user_id: user.id,
-            preferred_email: data.email,
-            username: cleanedUsername,
-            slug: slug
-          }
-        ])
+      const { error } = await clientUserService.insertUserSetting(user.id, data.email, cleanedUsername, slug)
 
       if (error) throw error
 
@@ -71,7 +61,7 @@ export default function Welcome() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [user, isLoading, setIsLoading, trimText, slugifyText, setValue, reset, toast, router, clientUserService.insertUserSetting])
 
   return (
     <div className="flex items-center justify-center flex-1 p-4">

@@ -7,7 +7,9 @@ import {
   GET_PROJECT_ENTRIES_BY_PROJECT_ID_FUNCTION,
   GET_ACTIVE_PROJECT_LATEST_ENTRY_FUNCTION,
   UPDATE_ENTRY_WITH_IMAGES_FUNCTION,
-  PROJECT_STATUS_DELETED
+  PROJECT_STATUS_DELETED,
+  PROJECT_STATUS_COMPLETED,
+  PROJECT_STATUS_EXPIRED
 } from "@/lib/supabase/constants"
 import {
   ProjectWithLatestEntry,
@@ -18,7 +20,8 @@ import {
   ProjectEditView,
   InsertProjectResult,
   UpdateResponse,
-  EntryView
+  EntryView,
+  ProjectTable
 } from "@/lib/supabase/types"
 import { BaseUserService } from "@/lib/supabase/UserService"
 import { handleResponse, Response } from "@/lib/supabase/response"
@@ -99,6 +102,53 @@ export class BaseDatabaseService<T extends SupabaseClient | Promise<SupabaseClie
       .eq('user_id', user.id)
       .eq('status', PROJECT_STATUS_ACTIVE)
       .single()
+
+    return handleResponse({
+      data,
+      error
+    })
+  }
+
+  async getProjectCountByUserId(userId: string): Promise<Response<number, PostgrestError>> {
+    const supabase = await this.getSupabase();
+    const { count, error } = await supabase
+      .from(TABLE_PROJECTS)
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .in('status', [PROJECT_STATUS_ACTIVE, PROJECT_STATUS_COMPLETED, PROJECT_STATUS_EXPIRED])
+
+    return handleResponse({
+      data: count,
+      error
+    })
+  }
+
+  async getProjectsByUserId(
+    userId: string,
+    pageSize: number,
+    page: number = 0,
+    column: string = '',
+    sortOrder: string = 'desc'
+  ): Promise<Response<ProjectTable[], PostgrestError>> {
+    const supabase = await this.getSupabase();
+
+    let query = supabase
+      .from(TABLE_PROJECTS)
+      .select('id, title, completed_days, target_days, status, created_at')
+      .eq('user_id', userId)
+      .in('status', [PROJECT_STATUS_ACTIVE, PROJECT_STATUS_COMPLETED, PROJECT_STATUS_EXPIRED])
+      
+    if (column && sortOrder) {
+      query = query.order(column, { ascending: sortOrder === 'asc' })
+    } else {
+      query = query.order('created_at', { ascending: false })
+    }
+
+    const start = page * pageSize
+    const end = start + pageSize - 1
+    query = query.range(start, end)
+  
+    const { error, data } = await query
 
     return handleResponse({
       data,
@@ -204,7 +254,7 @@ export class BaseDatabaseService<T extends SupabaseClient | Promise<SupabaseClie
         error: userError
       })
     }
-    
+
     const supabase = await this.getSupabase();
     const { data, error } = await supabase
       .from(TABLE_PROJECTS)

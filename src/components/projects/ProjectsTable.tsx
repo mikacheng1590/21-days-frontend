@@ -199,25 +199,8 @@ export default function ProjectsTable({
 
       try {
         setIsLoading(true)
-        const supabase = createClient()
-
-        let query = supabase
-          .from(TABLE_PROJECTS)
-          .select('id, title, completed_days, target_days, status, created_at')
-          .eq('user_id', userSetting.user_id)
-          .in('status', [PROJECT_STATUS_ACTIVE, PROJECT_STATUS_COMPLETED, PROJECT_STATUS_EXPIRED])
-
-        if (column && sortOrder) {
-          query = query.order(column, { ascending: sortOrder === 'asc' })
-        } else {
-          query = query.order('created_at', { ascending: false })
-        }
-
-        const start = page * pageSize
-        const end = start + pageSize - 1
-        query = query.range(start, end)
         
-        const { error, data } = await query
+        const { data, error } = await clientDbService.getProjectsByUserId(userSetting.user_id, pageSize, page, column, sortOrder)
         
         if (error) throw error
         if (data) setData(data)
@@ -227,17 +210,12 @@ export default function ProjectsTable({
         setIsLoading(false)
       }
     }, 500),
-    [userSetting.user_id, totalCount, pageSize, isLoading, setData, setIsLoading]
+    [clientDbService.getProjectsByUserId, userSetting.user_id, totalCount, pageSize, isLoading, setData, setIsLoading]
   )
 
   const fetchCount = useCallback(async () => {
     try {
-      const supabase = createClient()
-      const { error, count } = await supabase
-      .from(TABLE_PROJECTS)
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userSetting.user_id)
-      .in('status', [PROJECT_STATUS_ACTIVE, PROJECT_STATUS_COMPLETED, PROJECT_STATUS_EXPIRED])
+      const { data: count, error } = await clientDbService.getProjectCountByUserId(userSetting.user_id)
 
       if (error) throw error
       setTotalCount(count)
@@ -270,7 +248,7 @@ export default function ProjectsTable({
       setRowSelection({})
       fetchProjects(pageIndex)
     }
-    
+
     setIsLoading(false)
   }, [data, rowSelection, clientDbService.updateProjectStatus, toast, setRowSelection, fetchProjects, pageIndex])
 
