@@ -1,5 +1,6 @@
 'use client'
 
+import Link from "next/link"
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -20,7 +21,6 @@ import {
 } from '@/components/ui/carousel'
 import { EntryImage } from '@/lib/supabase/types'
 import { convertToDate } from "@/lib/datetime/utils"
-import Link from "next/link"
 
 type ProjectDialogProps = {
   description: string

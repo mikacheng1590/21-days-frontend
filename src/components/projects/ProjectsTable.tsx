@@ -17,6 +17,8 @@ import {
 } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
 import { debounce } from "lodash"
+import { toast } from "react-toastify"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 // import {
@@ -41,6 +43,9 @@ import { createClient } from "@/lib/supabase/client/client"
 import { TABLE_PROJECTS } from "@/lib/supabase/constants"
 import { convertToDate } from "@/lib/datetime/utils"
 import { ProjectTable, BaseUserData } from "@/lib/supabase/types"
+import { DeleteDialog } from "@/components/projects/DeleteDialog"
+import { clientDbService } from "@/lib/supabase/client/db"
+import { PROJECT_STATUS_ACTIVE, PROJECT_STATUS_COMPLETED, PROJECT_STATUS_EXPIRED } from "@/lib/supabase/constants"
 
 declare module '@tanstack/table-core' {
   interface TableMeta<TData extends RowData> {
@@ -48,7 +53,11 @@ declare module '@tanstack/table-core' {
   }
 }
 
-export const columns: ColumnDef<ProjectTable>[] = [
+type ExtendedColumnDef<TData extends RowData> = ColumnDef<TData> & {
+  isHiddenForVisitors?: boolean
+}
+
+export const columns: ExtendedColumnDef<ProjectTable>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -70,6 +79,7 @@ export const columns: ColumnDef<ProjectTable>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
+    isHiddenForVisitors: true,
   },
   {
     accessorKey: "title",
@@ -158,9 +168,11 @@ export const columns: ColumnDef<ProjectTable>[] = [
 ]
 
 export default function ProjectsTable({
-  userSetting
+  userSetting,
+  isOwner
 }: {
   userSetting: BaseUserData
+  isOwner: boolean
 }) {
   const [data, setData] = useState<ProjectTable[]>([])
   const [sorting, setSorting] = useState<SortingState>([])
@@ -175,6 +187,7 @@ export default function ProjectsTable({
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [tablePrompt, setTablePrompt] = useState<string>('')
   const pageSize = 10
+  const router = useRouter()
 
   const fetchProjects = useCallback(
     debounce(async (      
@@ -192,6 +205,7 @@ export default function ProjectsTable({
           .from(TABLE_PROJECTS)
           .select('id, title, completed_days, target_days, status, created_at')
           .eq('user_id', userSetting.user_id)
+          .in('status', [PROJECT_STATUS_ACTIVE, PROJECT_STATUS_COMPLETED, PROJECT_STATUS_EXPIRED])
 
         if (column && sortOrder) {
           query = query.order(column, { ascending: sortOrder === 'asc' })
@@ -223,6 +237,7 @@ export default function ProjectsTable({
       .from(TABLE_PROJECTS)
       .select('id', { count: 'exact', head: true })
       .eq('user_id', userSetting.user_id)
+      .in('status', [PROJECT_STATUS_ACTIVE, PROJECT_STATUS_COMPLETED, PROJECT_STATUS_EXPIRED])
 
       if (error) throw error
       setTotalCount(count)
@@ -240,6 +255,24 @@ export default function ProjectsTable({
       setTablePrompt('')
     }
   }, [isLoading, data, setTablePrompt])
+
+  const handleDelete = useCallback(async () => {
+    setIsLoading(true)
+
+    const projectsToDelete = data.filter((_, idx) => Object.keys(rowSelection).includes(idx.toString())).map((project) => project.id)
+    const { error } = await clientDbService.updateProjectStatus(projectsToDelete)
+
+    if (error) {
+      console.error(error)
+      toast.error('Failed to delete projects. Please try again later.')
+    } else {
+      toast.success('Projects deleted successfully')
+      setRowSelection({})
+      fetchProjects(pageIndex)
+    }
+    
+    setIsLoading(false)
+  }, [data, rowSelection, clientDbService.updateProjectStatus, toast, setRowSelection, fetchProjects, pageIndex])
 
   // Fetch total count
   useEffect(() => {
@@ -261,17 +294,12 @@ export default function ProjectsTable({
     setTableState()
   }, [isLoading, data])
 
-  useEffect(() => {
-    console.log(rowSelection)
-    console.log(data.filter((project, idx) => Object.keys(rowSelection).includes(idx.toString())))
-  }, [rowSelection])
-
   const table = useReactTable({
     data,
     meta: {
       slug: userSetting.slug
     },
-    columns,
+    columns: !isOwner ? columns.filter((column) => !column.isHiddenForVisitors) : columns,
     pageCount: totalCount ? Math.ceil(totalCount / pageSize) : -1,
     state: {
       sorting,
@@ -308,7 +336,7 @@ TODO:
 
   return (
     <div className="w-full font-base text-mtext">
-      <div className="flex items-center py-4">
+      <div className="flex items-center justify-between py-4">
         <Input
           placeholder="Filter titles..."
           value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
@@ -317,6 +345,7 @@ TODO:
           }
           className="max-w-sm"
         />
+        {isOwner && Object.keys(rowSelection).length > 0 && <DeleteDialog deleteAction={handleDelete} />}
         {/* <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="noShadow" className="ml-auto">

@@ -6,7 +6,8 @@ import {
   INSERT_ENTRY_WITH_IMAGES_FUNCTION,
   GET_PROJECT_ENTRIES_BY_PROJECT_ID_FUNCTION,
   GET_ACTIVE_PROJECT_LATEST_ENTRY_FUNCTION,
-  UPDATE_ENTRY_WITH_IMAGES_FUNCTION
+  UPDATE_ENTRY_WITH_IMAGES_FUNCTION,
+  PROJECT_STATUS_DELETED
 } from "@/lib/supabase/constants"
 import {
   ProjectWithLatestEntry,
@@ -188,6 +189,28 @@ export class BaseDatabaseService<T extends SupabaseClient | Promise<SupabaseClie
       .eq('id', project.id)
       .eq('user_id', project.user_id)
       .eq('status', PROJECT_STATUS_ACTIVE)
+
+    return handleResponse({
+      data,
+      error
+    })
+  }
+
+  async updateProjectStatus(projectIds: number[], status: string = PROJECT_STATUS_DELETED): Promise<Response<UpdateResponse, PostgrestError | AuthError>> {
+    const { data: user, error: userError } = await this.userService.getUser()
+    if (userError || !user) {
+      return handleResponse({
+        data: null,
+        error: userError
+      })
+    }
+    
+    const supabase = await this.getSupabase();
+    const { data, error } = await supabase
+      .from(TABLE_PROJECTS)
+      .update({ status })
+      .in('id', projectIds)
+      .eq('user_id', user.id)
 
     return handleResponse({
       data,

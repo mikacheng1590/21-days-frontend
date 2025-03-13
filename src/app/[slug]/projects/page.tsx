@@ -33,7 +33,10 @@ export default async function ProjectsPage({
             </Button>
           )}
         </div>
-        <ProjectsTable userSetting={userSetting} />
+        <ProjectsTable
+          userSetting={userSetting}
+          isOwner={isOwner}
+        />
       </div>
     </div>
   )
