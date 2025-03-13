@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  // DialogDescription,
-  // DialogFooter,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -55,7 +54,6 @@ export function EntryDialog({
             </Link>
           )}
         </DialogTitle>
-          {/* <DialogDescription> */}
             <div className="flex justify-center items-center">
               <Carousel className="w-full max-w-[200px] md:max-w-[400px]">
                 <CarouselContent>
@@ -75,8 +73,9 @@ export function EntryDialog({
                 <CarouselNext />
               </Carousel>
             </div>
-            <p className="text-xl font-base">{description}</p>
-          {/* </DialogDescription> */}
+            <DialogDescription className="text-xl font-base">
+              {description}
+            </DialogDescription>
         </DialogHeader>
       </DialogContent>
     </Dialog>
