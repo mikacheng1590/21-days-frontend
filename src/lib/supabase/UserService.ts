@@ -48,6 +48,26 @@ export class BaseUserService<T extends SupabaseClient | Promise<SupabaseClient>>
     })
   }
 
+  async getUserSetting(): Promise<Response<User | BaseUserData | null, AuthError |  PostgrestError | null>> {
+    const res = await this.getUser()
+    const { data: user, success: userSuccess } = res
+    if (!userSuccess || !user) {
+      return res
+    }
+
+    const supabase = await this.getSupabase()
+    const { data, error } = await supabase
+      .from(TABLE_USERS_SETTING)
+      .select('user_id, username, preferred_email, slug')
+      .eq('user_id', user.id)
+      .single()
+
+    return handleResponse({
+      data,
+      error,
+    })
+  }
+
   async getUserSettingBySlug(slug: string): Promise<Response<BaseUserData | null, PostgrestError | null>> {
     const supabase = await this.getSupabase()
     const { data, error } = await supabase
@@ -84,7 +104,28 @@ export class BaseUserService<T extends SupabaseClient | Promise<SupabaseClient>>
       data,
       error,
     })
-  } 
+  }   
+
+  async updateUserSetting(
+    userId: string,
+    preferredEmail: string,
+    username: string,
+  ): Promise<Response<null, PostgrestError>> {
+    const supabase = await this.getSupabase()
+    const { data, error } = await supabase
+      .from(TABLE_USERS_SETTING)
+      .update({
+        preferred_email: preferredEmail,
+        username,
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', userId)
+      
+    return handleResponse({
+      data,
+      error,
+    })
+  }
 
   async isPageOwner(pageSlug: string): Promise<boolean> {
     const currentSlug = await this.getSlugByUser()

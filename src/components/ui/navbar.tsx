@@ -16,13 +16,8 @@ type NavLink = {
 
 const navLinks: NavLink[] = [
   {
-    href: '/',
-    label: 'Home',
-    notShowOn: ['/welcome']
-  },
-  {
-    href: '/settings',
-    label: 'Settings',
+    href: `/profile`,
+    label: 'Profile',
     notShowOn: ['/welcome']
   }
 ]

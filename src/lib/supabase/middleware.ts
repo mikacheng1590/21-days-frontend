@@ -16,7 +16,7 @@ export const updateSession = async (request: NextRequest) => {
   // const { data: { user } } = await supabase.auth.getUser()
   const { data: user } = await serverUserService.getUser()
 
-  const needEditAccessPathNames = ['/new', '/edit']
+  const needEditAccessPathNames = ['/new', '/edit', '/profile']
   const url = request.nextUrl.clone()
 
   // protect routes that are only accessible to logged in users
