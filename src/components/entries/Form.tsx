@@ -25,19 +25,19 @@ type FormData = {
   images: FormImage[]
 }
 
-type NewFormProps = {
+type FormProps = {
   projectId: number
   todayDay?: number
   slug: string
   entry?: EntryView
 }
 
-export default function NewForm({
+export default function Form({
   projectId,
   todayDay,
   slug,
   entry
-}: NewFormProps) {
+}: FormProps) {
   const { user } = useAuth()
   const isEditMode = !!entry
   const router = useRouter()

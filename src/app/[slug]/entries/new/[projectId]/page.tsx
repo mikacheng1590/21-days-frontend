@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import NewForm from "@/components/entries/NewForm"
+import Form from "@/components/entries/Form"
 import { serverDbService } from "@/lib/supabase/server/db"
 import { isDateToday } from "@/lib/datetime/utils"
 import { ENTRY_WARNING_DUPLICATED_ENTRY_FOR_TODAY } from "@/lib/constants"
@@ -45,7 +45,7 @@ export default async function NewEntryPage({
           </p>
         </div>
 
-        <NewForm
+        <Form
           projectId={projectId}
           todayDay={todayDay}
           slug={slug}

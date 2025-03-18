@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation"
-import NewForm from "@/components/projects/Form"
+import Form from "@/components/projects/Form"
 import { serverDbService } from "@/lib/supabase/server/db"
 import { serverUserService } from "@/lib/supabase/server/user"
 
@@ -32,7 +32,7 @@ export default async function EditProjectPage({
           <h1 className="text-3xl font-bold">Edit Project</h1>
         </div>
 
-        <NewForm
+        <Form
           slug={slug}
           project={project}
           formType="edit"

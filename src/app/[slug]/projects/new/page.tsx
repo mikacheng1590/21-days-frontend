@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import NewForm from '@/components/projects/Form'
+import Form from '@/components/projects/Form'
 import { serverUserService } from '@/lib/supabase/server/user'
 
 type NewProjectPageProps = {
@@ -28,7 +28,7 @@ export default async function NewProjectPage({
           </p>
         </div>
 
-        <NewForm
+        <Form
           slug={slug}
         />
       </div>

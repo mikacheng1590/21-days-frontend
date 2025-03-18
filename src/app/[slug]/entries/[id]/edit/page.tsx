@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import { serverDbService } from "@/lib/supabase/server/db"
-import NewForm from "@/components/entries/NewForm"
+import Form from "@/components/entries/Form"
 import { ENTRY_WARNING_DUPLICATED_ENTRY_FOR_TODAY } from "@/lib/constants"
 
 type EditEntryPageProps = {
@@ -39,7 +39,7 @@ export default async function EditEntryPage({
           <h1 className="text-3xl font-bold">Update Entry</h1>
         </div>
 
-        <NewForm
+        <Form
           projectId={entry.project_id}
           slug={slug}
           entry={entry}
