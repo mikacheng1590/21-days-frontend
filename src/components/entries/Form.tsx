@@ -49,7 +49,6 @@ export default function Form({
     register,
     handleSubmit,
     setValue,
-    reset,
     control,
     formState: { errors, isValid }
   } = useForm<FormData>({
@@ -95,7 +94,7 @@ export default function Form({
   }, [imagesInput, setImagesToDelete, setValue])
 
   const uploadImageToDb = useCallback(async (images: FormImage[]): Promise<string[]> => {
-    let imageUrls = []
+    const imageUrls = []
 
     for (const image of images) {
       // if image does not exist on db, upload it
@@ -111,7 +110,7 @@ export default function Form({
     }
 
     return imageUrls
-  }, [convertBlobUrlToFile, uploadImage])
+  }, [])
 
   const updateEntryOnDb = useCallback(async (description: string, imageUrls: string[]): Promise<{ success: boolean, error: PostgrestError | null }> => {
     if (!entry || !user) {
@@ -129,7 +128,7 @@ export default function Form({
       success: editResponseSuccess,
       error: editError
     }
-  }, [clientDbService.updateEntry, entry, user, imagesToDelete])
+  }, [entry, user, imagesToDelete])
 
   const insertEntryOnDb = useCallback(async (description: string, imageUrls: string[]): Promise<boolean | PostgrestError> => {
     // Validate day sequence for new entries only
@@ -153,7 +152,7 @@ export default function Form({
     if (!insertResponseSuccess) throw insertError
 
     return true
-  }, [clientDbService.getActiveProjectLatestEntry, clientDbService.insertEntryAndUpdateProjectStatus, projectId, todayDay])
+  }, [projectId, todayDay])
 
   const handleFormSubmit = useCallback(async(formData: FormData) => {
     if (isLoading) return
@@ -178,7 +177,7 @@ export default function Form({
           imageUrls,
         )
         if (!editSuccess) {
-          let e = editError ?? new Error('Failed to update entry as entry/ user not found')
+          const e = editError ?? new Error('Failed to update entry as entry/ user not found')
           throw e
         }
 
@@ -202,7 +201,7 @@ export default function Form({
     } finally {
       setIsLoading(false)
     }
-  }, [isLoading, setIsLoading, toast, router, uploadImageToDb, isEditMode, updateEntryOnDb, insertEntryOnDb])
+  }, [isLoading, setIsLoading, router, uploadImageToDb, isEditMode, updateEntryOnDb, insertEntryOnDb, projectId, slug, user])
 
   const onSubmit = (data: FormData) => {
     handleFormSubmit(data)
@@ -246,7 +245,7 @@ export default function Form({
         />
         <Button
           type="button"
-          onClick={(e) => {
+          onClick={() => {
             imageInputRef.current?.click()
           }}
           disabled={isLoading}
