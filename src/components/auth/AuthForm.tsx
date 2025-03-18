@@ -82,7 +82,7 @@ export function AuthForm() {
       resetField('password')
       setIsLoading(false)
     }
-  }, [isLoading, setIsLoading, resetField, mode, setMode, supabase, router])
+  }, [isLoading, setIsLoading, resetField, mode, supabase, router])
 
   const onSubmit = async (data: FormData) => {
     handleEmailAuth(data)
