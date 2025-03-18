@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
+import { AuthError } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { AuthError } from '@supabase/supabase-js'
 import { SUPABASE_AUTH_ERROR_SAME_PASSWORD } from '@/lib/constants'
 
 type FormData = {
@@ -31,13 +31,13 @@ export default function ResetPassword() {
   const password = watch('password')
   const supabase = createClient()
 
-  useEffect(() => {
-    supabase.auth.onAuthStateChange(async (event, session) => {
+  // useEffect(() => {
+    // supabase.auth.onAuthStateChange(async (event, session) => {
       // if (event !== "PASSWORD_RECOVERY") {
       //   router.push('/')
       // }
-    })
-  }, [router])
+    // })
+  // }, [router, supabase.auth])
 
   const onSubmit = async (data: FormData) => {
     if (isLoading) return
