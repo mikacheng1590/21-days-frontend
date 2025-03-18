@@ -101,7 +101,7 @@ export default function Form({
     } finally {
       setIsLoading(false)
     }
-  }, [isLoading, setIsLoading, user, toast, router, reset, clientDbService.updateProject, clientDbService.insertProject])
+  }, [isLoading, setIsLoading, user, router, reset, formType, slug, project])
 
   const onSubmit = async (data: FormData) => {
     handleFormSubmit(data)
