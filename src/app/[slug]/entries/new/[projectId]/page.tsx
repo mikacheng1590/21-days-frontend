@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 import NewForm from "@/components/entries/NewForm"
 import { serverDbService } from "@/lib/supabase/server/db"
 import { isDateToday } from "@/lib/datetime/utils"
+import { ENTRY_WARNING_DUPLICATED_ENTRY_FOR_TODAY } from "@/lib/supabase/constants"
 
 type NewEntryPageProps = {  
   params: {
@@ -26,7 +27,7 @@ export default async function NewEntryPage({
 
   // today has an entry, cannot create a new one
   if (latestEntry?.entries.length && isDateToday(latestEntry.entries[0].created_at)) {
-    redirect(`/${slug}/entries/${latestEntry.entries[0].id}/edit?warning=potential-entry-for-today`)
+    redirect(`/${slug}/entries/${latestEntry.entries[0].id}/edit?warning=${ENTRY_WARNING_DUPLICATED_ENTRY_FOR_TODAY}`)
   } else if (latestEntry?.entries.length) {
     todayDay = latestEntry.entries[0].day + 1
   }
