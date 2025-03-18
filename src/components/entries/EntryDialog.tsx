@@ -1,6 +1,7 @@
 'use client'
 
-import Link from "next/link"
+import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -19,7 +20,7 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel'
 import { EntryImage } from '@/lib/supabase/types'
-import { convertToDate } from "@/lib/datetime/utils"
+import { convertToDate } from '@/lib/datetime/utils'
 
 type ProjectDialogProps = {
   description: string
@@ -62,7 +63,7 @@ export function EntryDialog({
                       <div className="p-[10px]">
                         <Card className="shadow-none">
                           <CardContent className="flex aspect-[4/3] items-center justify-center p-4">
-                            <img src={image.image_url} alt={`image-${index}`} className="w-full h-full object-cover" />
+                            <Image src={image.image_url} alt={`image-${index}`} className="w-full h-full object-cover" width={400} height={300} />
                           </CardContent>
                         </Card>
                       </div>

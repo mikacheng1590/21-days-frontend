@@ -21,7 +21,7 @@ export function EntryGrid({
   const [list, setList] = useState<ProjectViewEntry[]>(entries)
 
   return (
-    <div>
+    <div className="w-full">
       <Button
         variant="noShadow"
         size="sm"
