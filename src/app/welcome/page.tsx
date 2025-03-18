@@ -18,7 +18,7 @@ type FormData = {
 
 export default function Welcome() {
   const { user } = useAuth()
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const router = useRouter()
   
   const {
@@ -61,7 +61,7 @@ export default function Welcome() {
     } finally {
       setIsLoading(false)
     }
-  }, [user, isLoading, setIsLoading, trimText, slugifyText, setValue, reset, toast, router, clientUserService.insertUserSetting])
+  }, [user, isLoading, setIsLoading, reset, router])
 
   return (
     <div className="flex items-center justify-center flex-1 p-4">
