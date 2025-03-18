@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation"
 import { serverDbService } from "@/lib/supabase/server/db"
 import NewForm from "@/components/entries/NewForm"
-import { ENTRY_WARNING_DUPLICATED_ENTRY_FOR_TODAY } from "@/lib/supabase/constants"
+import { ENTRY_WARNING_DUPLICATED_ENTRY_FOR_TODAY } from "@/lib/constants"
 
 type EditEntryPageProps = {
   params: {

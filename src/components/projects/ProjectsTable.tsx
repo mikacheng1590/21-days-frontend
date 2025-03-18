@@ -40,12 +40,12 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { createClient } from "@/lib/supabase/client/client"
-import { TABLE_PROJECTS } from "@/lib/supabase/constants"
+import { TABLE_PROJECTS } from "@/lib/constants"
 import { convertToDate } from "@/lib/datetime/utils"
 import { ProjectTable, BaseUserData } from "@/lib/supabase/types"
 import { DeleteDialog } from "@/components/projects/DeleteDialog"
 import { clientDbService } from "@/lib/supabase/client/db"
-import { PROJECT_STATUS_ACTIVE, PROJECT_STATUS_COMPLETED, PROJECT_STATUS_EXPIRED } from "@/lib/supabase/constants"
+import { PROJECT_STATUS_ACTIVE, PROJECT_STATUS_COMPLETED, PROJECT_STATUS_EXPIRED } from "@/lib/constants"
 
 declare module '@tanstack/table-core' {
   interface TableMeta<TData extends RowData> {

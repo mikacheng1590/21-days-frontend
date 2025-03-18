@@ -1,6 +1,6 @@
 import { SupabaseClient, User, AuthError, PostgrestError } from "@supabase/supabase-js";
 import { Response, handleResponse } from "@/lib/supabase/response";
-import { TABLE_USERS_SETTING } from "@/lib/supabase/constants";
+import { TABLE_USERS_SETTING } from "@/lib/constants";
 import { BaseUserData } from "@/lib/supabase/types";
 
 export class BaseUserService<T extends SupabaseClient | Promise<SupabaseClient>> {

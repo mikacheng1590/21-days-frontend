@@ -9,7 +9,7 @@ import { createClient } from '@/lib/supabase/client/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { AuthError } from '@supabase/supabase-js'
-import { SUPABASE_AUTH_ERROR_INVALID_CREDENTIALS, SUPABASE_AUTH_ERROR_EMAIL_NOT_CONFIRMED, SUPABASE_AUTH_ERROR_USER_ALREADY_EXISTS, SUPABASE_AUTH_ERROR_EMAIL_ALREADY_EXISTS } from '@/lib/supabase/constants'
+import { SUPABASE_AUTH_ERROR_INVALID_CREDENTIALS, SUPABASE_AUTH_ERROR_EMAIL_NOT_CONFIRMED, SUPABASE_AUTH_ERROR_USER_ALREADY_EXISTS, SUPABASE_AUTH_ERROR_EMAIL_ALREADY_EXISTS } from '@/lib/constants'
 
 type FormData = {
   email: string

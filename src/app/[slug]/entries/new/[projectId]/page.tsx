@@ -2,7 +2,7 @@ import { redirect } from "next/navigation"
 import NewForm from "@/components/entries/NewForm"
 import { serverDbService } from "@/lib/supabase/server/db"
 import { isDateToday } from "@/lib/datetime/utils"
-import { ENTRY_WARNING_DUPLICATED_ENTRY_FOR_TODAY } from "@/lib/supabase/constants"
+import { ENTRY_WARNING_DUPLICATED_ENTRY_FOR_TODAY } from "@/lib/constants"
 
 type NewEntryPageProps = {  
   params: {

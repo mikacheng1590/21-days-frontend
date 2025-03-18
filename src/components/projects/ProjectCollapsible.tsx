@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/collapsible'
 import { useIsMd } from '@/lib/hooks/useMediaQuery'
 import { Badge } from '@/components/ui/badge'
-import { PROJECT_STATUS_ACTIVE, PROJECT_STATUS_COMPLETED } from '@/lib/supabase/constants'
+import { PROJECT_STATUS_ACTIVE, PROJECT_STATUS_COMPLETED } from '@/lib/constants'
 import { convertToDate } from '@/lib/datetime/utils'
 
 type ProjectCollapsibleProps = {

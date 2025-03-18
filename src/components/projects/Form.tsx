@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/components/providers/AuthProvider'
-import { PROJECT_STATUS_ACTIVE } from "@/lib/supabase/constants"
+import { PROJECT_STATUS_ACTIVE } from "@/lib/constants"
 import { ProjectSummary } from '@/lib/supabase/types'
 import { cn } from "@/lib/tailwind/utils"
 import { clientDbService } from "@/lib/supabase/client/db"

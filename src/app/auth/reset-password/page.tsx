@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/client/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { AuthError } from '@supabase/supabase-js'
-import { SUPABASE_AUTH_ERROR_SAME_PASSWORD } from '@/lib/supabase/constants'
+import { SUPABASE_AUTH_ERROR_SAME_PASSWORD } from '@/lib/constants'
 
 type FormData = {
   password: string

@@ -10,7 +10,7 @@ import {
   PROJECT_STATUS_DELETED,
   PROJECT_STATUS_COMPLETED,
   PROJECT_STATUS_EXPIRED
-} from "@/lib/supabase/constants"
+} from "@/lib/constants"
 import {
   ProjectWithLatestEntry,
   ProjectPublicView,
