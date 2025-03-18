@@ -1,4 +1,6 @@
+import { redirect } from 'next/navigation'
 import NewForm from '@/components/projects/Form'
+import { serverUserService } from '@/lib/supabase/server/user'
 
 type NewProjectPageProps = {
   params: {
@@ -10,6 +12,11 @@ export default async function NewProjectPage({
   params
 }: NewProjectPageProps) {
   const { slug } = await params
+  const isPageOwner = await serverUserService.isPageOwner(slug)
+
+  if (!isPageOwner) {
+    redirect('/error')
+  }
 
   return (
     <div className="p-4">
