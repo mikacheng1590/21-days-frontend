@@ -44,7 +44,7 @@ export default function Form({
     } finally {
       setIsLoading(false)
     }
-  }, [isLoading, setIsLoading, clientUserService.updateUserSetting, userId, toast])
+  }, [isLoading, setIsLoading, userId])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
