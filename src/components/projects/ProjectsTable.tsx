@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useMemo } from "react"
 import Link from "next/link"
 import {
   ColumnDef,
@@ -15,10 +15,9 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
+import { ArrowUpDown } from "lucide-react"
 import { debounce } from "lodash"
 import { toast } from "react-toastify"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 // import {
@@ -39,17 +38,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { createClient } from "@/lib/supabase/client/client"
-import { TABLE_PROJECTS } from "@/lib/constants"
 import { convertToDate } from "@/lib/datetime/utils"
 import { ProjectTable, BaseUserData } from "@/lib/supabase/types"
 import { DeleteDialog } from "@/components/projects/DeleteDialog"
 import { clientDbService } from "@/lib/supabase/client/db"
-import { PROJECT_STATUS_ACTIVE, PROJECT_STATUS_COMPLETED, PROJECT_STATUS_EXPIRED } from "@/lib/constants"
 
 declare module '@tanstack/table-core' {
   interface TableMeta<TData extends RowData> {
-    slug: string
+    slug: TData extends { slug?: string } ? string : string
   }
 }
 
@@ -187,31 +183,60 @@ export default function ProjectsTable({
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [tablePrompt, setTablePrompt] = useState<string>('')
   const pageSize = 10
-  const router = useRouter()
 
-  const fetchProjects = useCallback(
-    debounce(async (      
-      page: number = 0,
-      column: string = '',
-      sortOrder: string = 'desc',
+  const getProjects = useCallback(async (
+    column: string = '',
+    sortOrder: string = 'desc'
+  ) => {
+    try {
+      const { data, error } = await clientDbService.getProjectsByUserId(userSetting.user_id, pageSize, pageIndex, column, sortOrder)
+
+      if (error) throw error
+
+      return data
+    } catch (error) {
+      console.error(error)
+      return null
+    }
+  }, [userSetting.user_id, pageSize, pageIndex])
+
+  const debouncedFetchProjects = useMemo(() => {
+    return debounce(
+      async (
+        column: string,
+        sortOrder: string
     ) => {
-      if (isLoading || (typeof totalCount === 'number' && totalCount <= 1)) return
-
-      try {
-        setIsLoading(true)
-        
-        const { data, error } = await clientDbService.getProjectsByUserId(userSetting.user_id, pageSize, page, column, sortOrder)
-        
-        if (error) throw error
-        if (data) setData(data)
-      } catch (error) {
-        console.error(error)
-      } finally {
-        setIsLoading(false)
-      }
-    }, 500),
-    [clientDbService.getProjectsByUserId, userSetting.user_id, totalCount, pageSize, isLoading, setData, setIsLoading]
+      const data = await getProjects(column, sortOrder)
+      return data
+    }, 1000)},
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [] // Empty dependency array ensures debounce function remains stable
   )
+
+  const fetchProjects = useCallback(async (
+    column: string = '',
+    sortOrder: string = 'desc',
+    isDebounced: boolean = false
+  ) => {
+    if (isLoading) return
+
+    try {
+      setIsLoading(true)
+
+      let data;
+      if (isDebounced) {
+        data = await debouncedFetchProjects(column, sortOrder)
+      } else {
+        data = await getProjects(column, sortOrder)
+      }
+
+      if (data) setData(data)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [isLoading, setIsLoading, debouncedFetchProjects, getProjects, setData])
 
   const fetchCount = useCallback(async () => {
     try {
@@ -235,42 +260,53 @@ export default function ProjectsTable({
   }, [isLoading, data, setTablePrompt])
 
   const handleDelete = useCallback(async () => {
-    setIsLoading(true)
+    try {
+      setIsLoading(true)
 
-    const projectsToDelete = data.filter((_, idx) => Object.keys(rowSelection).includes(idx.toString())).map((project) => project.id)
-    const { error } = await clientDbService.updateProjectStatus(projectsToDelete)
+      const projectsToDelete = data.filter((_, idx) => Object.keys(rowSelection).includes(idx.toString())).map((project) => project.id)
+      const { error } = await clientDbService.updateProjectStatus(projectsToDelete)
 
-    if (error) {
-      console.error(error)
-      toast.error('Failed to delete projects. Please try again later.')
-    } else {
+      if (error) throw error
+
       toast.success('Projects deleted successfully')
       setRowSelection({})
-      fetchProjects(pageIndex)
+      fetchCount()
+      fetchProjects()
+    } catch (error) {
+      console.error(error)
+      toast.error('Failed to delete projects. Please try again later.')
+    } finally {
+      setIsLoading(false)
     }
-
-    setIsLoading(false)
-  }, [data, rowSelection, clientDbService.updateProjectStatus, toast, setRowSelection, fetchProjects, pageIndex])
+  }, [setIsLoading, data, rowSelection, setRowSelection, fetchProjects, fetchCount])
 
   // Fetch total count
   useEffect(() => {
     fetchCount()
-  }, [])
+  }, [fetchCount])
 
   // Fetch projects, also handle sorting and pagination
   useEffect(() => {
     if (sorting.length > 0) {
       const { id, desc } = sorting[0]
-      fetchProjects(pageIndex, id, desc ? 'desc' : 'asc')
+      fetchProjects(id, desc ? 'desc' : 'asc', true) // Debounce for sorting changes
     } else {
-      fetchProjects(pageIndex)
+      fetchProjects() // No debounce on first load
     }
-  }, [sorting, pageIndex])
+  }, [sorting, pageIndex, fetchProjects])
+  
 
   // Set table wordings when loading or no results
   useEffect(() => {
     setTableState()
-  }, [isLoading, data])
+  }, [isLoading, data, setTableState])
+
+  // useEffect to clean up debounce when component unmounts (prevents memory leaks)
+  useEffect(() => {
+    return () => {
+      debouncedFetchProjects.cancel()
+    }
+  }, [debouncedFetchProjects])
 
   const table = useReactTable({
     data,
@@ -438,7 +474,7 @@ TODO:
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="text-text flex-1 text-sm">
-          {totalCount ? `Showing ${pageIndex * pageSize + 1} to ${Math.min((pageIndex + 1) * pageSize, totalCount)} of ${totalCount} projects` : 'Loading...'}
+          {totalCount ? `Showing ${pageIndex * pageSize + 1} to ${Math.min((pageIndex + 1) * pageSize, totalCount)} of ${totalCount} projects` : totalCount === 0 ? '' : 'Loading...'}
         </div>
         <div className="space-x-2">
           <Button
