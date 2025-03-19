@@ -293,7 +293,9 @@ export default function ProjectsTable({
     } else {
       fetchProjects() // No debounce on first load
     }
-  }, [sorting, pageIndex, fetchProjects])
+    // fetchProjects is excluded from the dependency array because it will be called repeatedly
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sorting, pageIndex])
   
 
   // Set table wordings when loading or no results
