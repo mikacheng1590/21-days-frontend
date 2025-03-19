@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { serverUserService } from '@/lib/supabase/server/user'
 
 export const updateSession = async (request: NextRequest) => {
-  let supabaseResponse = NextResponse.next({
+  const supabaseResponse = NextResponse.next({
     request,
   })
 
