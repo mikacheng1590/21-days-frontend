@@ -4,10 +4,10 @@ import { serverDbService } from "@/lib/supabase/server/db"
 import { serverUserService } from "@/lib/supabase/server/user"
 
 type EditProjectPageProps = {
-  params: {
+  params: Promise<{
     slug: string
     id: number
-  }
+  }>
 }
 
 export default async function EditProjectPage({

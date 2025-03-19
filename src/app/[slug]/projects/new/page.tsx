@@ -3,9 +3,9 @@ import Form from '@/components/projects/Form'
 import { serverUserService } from '@/lib/supabase/server/user'
 
 type NewProjectPageProps = {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 export default async function NewProjectPage({

@@ -4,13 +4,13 @@ import Form from "@/components/entries/Form"
 import { ENTRY_WARNING_DUPLICATED_ENTRY_FOR_TODAY } from "@/lib/constants"
 
 type EditEntryPageProps = {
-  params: {
+  params: Promise<{
     slug: string
     id: number
-  }
-  searchParams: {
+  }>
+  searchParams: Promise<{
     warning?: string
-  }
+  }>
 }
 
 export default async function EditEntryPage({

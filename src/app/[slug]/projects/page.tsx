@@ -5,11 +5,15 @@ import { Button } from '@/components/ui/button'
 import ProjectsTable from '@/components/projects/ProjectsTable'
 import { serverUserService } from '@/lib/supabase/server/user'
 
+type ProjectsPageProps = {
+  params: Promise<{
+    slug: string
+  }>
+}
+
 export default async function ProjectsPage({
   params,
-}: {
-  params: { slug: string }
-}) {
+}: ProjectsPageProps) {
   const { slug } = await params
 
   const { data: userSetting, success: userSettingSuccess } = await serverUserService.getUserSettingBySlug(slug)

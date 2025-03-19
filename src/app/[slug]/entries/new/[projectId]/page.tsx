@@ -5,10 +5,10 @@ import { isDateToday } from "@/lib/datetime/utils"
 import { ENTRY_WARNING_DUPLICATED_ENTRY_FOR_TODAY } from "@/lib/constants"
 
 type NewEntryPageProps = {  
-  params: {
+  params: Promise<{
     projectId: number
     slug: string
-  }
+  }>
 }
 
 export default async function NewEntryPage({

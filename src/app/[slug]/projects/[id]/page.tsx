@@ -7,9 +7,16 @@ import { serverUserService } from '@/lib/supabase/server/user'
 import { ProjectCollapsible } from "@/components/projects/ProjectCollapsible"
 import { EntryGrid } from "@/components/projects/EntryGrid"
 
+type ProjectPageProps = { 
+  params: Promise<{
+    id: number
+    slug: string
+  }>
+}
+
 export default async function ProjectPage({
   params
-}: { params: { id: number, slug: string} }) {
+}: ProjectPageProps) {
   const { id, slug } = await params
 
   const { data: userSetting, success: userSettingSuccess } = await serverUserService.getUserSettingBySlug(slug)
