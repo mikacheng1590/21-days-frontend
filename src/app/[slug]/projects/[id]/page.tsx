@@ -47,7 +47,7 @@ export default async function ProjectPage({
             slug={slug}
             id={id}
           />
-          {isOwner && (
+          {isOwner && data.status === 'active' && (
             <Button type="button" className="mt-4 block">
               <Link href={`/${slug}/entries/new/${id}`} className="flex items-center gap-1">
                 <Plus className="h-4 w-4" />
