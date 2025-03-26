@@ -20,6 +20,7 @@ export type BaseProject = {
   completed_days: number
   target_days: number
   allow_skipped_days: number
+  skipped_days: number
   status: string
 }
 
