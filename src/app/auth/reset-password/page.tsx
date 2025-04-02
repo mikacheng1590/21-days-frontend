@@ -22,7 +22,6 @@ export default function ResetPassword() {
     register,
     handleSubmit,
     watch,
-    reset,
     formState: { errors, isValid }
   } = useForm<FormData>({
     mode: 'onChange'
@@ -61,7 +60,6 @@ export default function ResetPassword() {
       const errMsg = error instanceof AuthError && error.code === SUPABASE_AUTH_ERROR_SAME_PASSWORD ? error.message : 'Failed to update password'
       toast.error(errMsg)
     } finally {
-      reset()
       setIsLoading(false)
     }
   }

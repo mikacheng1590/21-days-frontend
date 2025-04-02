@@ -90,7 +90,6 @@ export default function Form({
         projectId = insertResult?.[0]?.id
       }
       
-      reset()
       const successMessage = formType === 'new' ? 'Project created successfully!' : 'Project updated successfully!'
       toast.success(successMessage)
       router.push(`/${slug}/projects/${projectId}`)

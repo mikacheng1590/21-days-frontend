@@ -50,7 +50,6 @@ export default function Welcome() {
 
       if (error) throw error
 
-      reset()
       toast.success('Settings saved successfully!')
       router.push(`/${slug}/projects`)
     } catch (error: any) {

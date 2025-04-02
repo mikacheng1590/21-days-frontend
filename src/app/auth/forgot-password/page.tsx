@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,8 +12,8 @@ type FormData = {
 }
 
 export default function ForgotPassword() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [isEmailSent, setIsEmailSent] = useState(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isEmailSent, setIsEmailSent] = useState<boolean>(false)
   const {
     register,
     handleSubmit,
@@ -28,6 +28,7 @@ export default function ForgotPassword() {
     if (isLoading) return
     
     setIsLoading(true)
+    setIsEmailSent(false)
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
@@ -36,7 +37,6 @@ export default function ForgotPassword() {
       
       if (error) throw error
       
-      reset()
       setIsEmailSent(true)
     } catch (error) {
       console.error(error)
@@ -44,6 +44,12 @@ export default function ForgotPassword() {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (isEmailSent) {
+      reset()
+    }
+  }, [isEmailSent])
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
