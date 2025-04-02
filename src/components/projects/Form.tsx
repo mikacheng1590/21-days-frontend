@@ -83,6 +83,7 @@ export default function Form({
           target_days: data.numberOfDays,
           allow_skipped_days: data.allowedSkips,
           completed_days: 0,
+          skipped_days: 0,
           status: PROJECT_STATUS_ACTIVE
         })
 
