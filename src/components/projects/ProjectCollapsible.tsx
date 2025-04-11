@@ -10,8 +10,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
 import { useIsMd } from '@/lib/hooks/useMediaQuery'
-import { Badge } from '@/components/ui/badge'
-import { PROJECT_STATUS_ACTIVE, PROJECT_STATUS_COMPLETED } from '@/lib/constants'
+import StatusBadge from '@/components/projects/StatusBadge'
 import { convertToDate } from '@/lib/datetime/utils'
 
 type ProjectCollapsibleProps = {
@@ -86,7 +85,7 @@ export function ProjectCollapsible({
           <div>
             <div className="flex items-center justify-between mb-3">
               <p>Progress: {completedDays} / {targetDays} days</p>
-              <Badge variant={status === PROJECT_STATUS_ACTIVE ? 'ordinary' : status === PROJECT_STATUS_COMPLETED ? 'success' : 'error'}>{status}</Badge>
+              <StatusBadge status={status} />
             </div>
             <p className="mb-3">Started on: <br/>{convertToDate(createdAt)}</p>
             {isOwner && <p>Allowed skipped days: {allowedSkippedDays}</p>}

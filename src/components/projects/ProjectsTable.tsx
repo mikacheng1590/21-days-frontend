@@ -42,7 +42,7 @@ import { convertToDate } from "@/lib/datetime/utils"
 import { ProjectTable, BaseUserData } from "@/lib/supabase/types"
 import { DeleteDialog } from "@/components/projects/DeleteDialog"
 import { clientDbService } from "@/lib/supabase/client/db"
-
+import StatusBadge from "@/components/projects/StatusBadge"
 declare module '@tanstack/table-core' {
   interface TableMeta<TData extends RowData> {
     slug: TData extends { slug?: string } ? string : string
@@ -110,7 +110,7 @@ export const columns: ExtendedColumnDef<ProjectTable>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("status")}</div>
+      <StatusBadge status={row.getValue("status")} />
     ),
   },
   {
