@@ -107,7 +107,7 @@ export function Navbar() {
             ))}
             {/* Mobile Logout Button */}
             {user && (
-              <div className="mt-4 px-3">
+              <div className="mt-4 px-3" onClick={() => setIsOpen(false)}>
                 <LogoutButton />
               </div>
             )}
