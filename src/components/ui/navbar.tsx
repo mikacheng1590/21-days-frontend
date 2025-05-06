@@ -40,7 +40,7 @@ export function Navbar() {
         <div className="flex justify-between h-16">
           {/* Logo/Brand and Desktop Navigation */}
           <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
+            <div className="shrink-0 flex items-center">
               <Link href="/" className="text-xl font-bold">
                 21 Days
               </Link>
