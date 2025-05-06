@@ -352,7 +352,8 @@ TODO:
 
   return (
     <div className="w-full font-base text-mtext">
-      <div className="flex items-center justify-between py-4">
+      {isOwner && Object.keys(rowSelection).length > 0 && <div className="pb-2"><DeleteDialog deleteAction={handleDelete} /></div>}
+      {/* <div className="flex items-center justify-between py-4">
         <Input
           placeholder="Filter titles..."
           value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
@@ -361,8 +362,8 @@ TODO:
           }
           className="max-w-sm"
         />
-        {isOwner && Object.keys(rowSelection).length > 0 && <DeleteDialog deleteAction={handleDelete} />}
-        {/* <DropdownMenu>
+        
+        <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="noShadow" className="ml-auto">
               Columns <ChevronDown className="ml-2 h-4 w-4" />
@@ -387,8 +388,8 @@ TODO:
                 )
               })}
           </DropdownMenuContent>
-        </DropdownMenu> */}
-      </div>
+        </DropdownMenu>
+      </div> */}
       <div className="rounded-md">
         <Table>
           <TableHeader className="font-heading">
