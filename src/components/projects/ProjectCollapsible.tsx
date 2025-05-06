@@ -76,7 +76,7 @@ export function ProjectCollapsible({
       <CollapsibleContent className="space-y-2 text-mtext font-base">
         {
           description && (
-            <div className="rounded-base border-2 border-border bg-main px-4 py-3 font-mono text-sm">
+            <div className="rounded-base border-2 border-border bg-main px-4 py-3 font-mono text-sm wrap-break-word">
               {description}
             </div>
           )
