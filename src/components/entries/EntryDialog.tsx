@@ -74,7 +74,7 @@ export function EntryDialog({
                 <CarouselNext />
               </Carousel>
             </div>
-            <DialogDescription className="text-xl font-base">
+            <DialogDescription className="text-xl font-base whitespace-pre-line">
               {description}
             </DialogDescription>
         </DialogHeader>
