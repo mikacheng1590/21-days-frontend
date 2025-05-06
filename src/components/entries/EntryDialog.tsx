@@ -62,7 +62,7 @@ export function EntryDialog({
                     <CarouselItem key={index}>
                       <div className="p-[10px]">
                         <Card className="shadow-none">
-                          <CardContent className="flex aspect-[4/3] items-center justify-center p-4">
+                          <CardContent className="flex aspect-4/3 items-center justify-center p-4">
                             <Image src={image.image_url} alt={`image-${index}`} className="w-full h-full object-cover" width={400} height={300} />
                           </CardContent>
                         </Card>
