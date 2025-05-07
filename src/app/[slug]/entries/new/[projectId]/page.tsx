@@ -27,6 +27,8 @@ export default async function NewEntryPage({
 
   // today has an entry, cannot create a new one
   if (latestEntry?.entries.length && isDateToday(latestEntry.entries[0].created_at)) {
+    console.log(latestEntry?.entries.length)
+    console.log(isDateToday(latestEntry.entries[0].created_at))
     redirect(`/${slug}/entries/${latestEntry.entries[0].id}/edit?warning=${ENTRY_WARNING_DUPLICATED_ENTRY_FOR_TODAY}`)
   } else if (latestEntry?.entries.length) {
     todayDay = latestEntry.entries[0].day + 1
