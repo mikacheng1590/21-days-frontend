@@ -1,4 +1,7 @@
-import { isToday, format } from "date-fns"
+import { isSameDay, format } from "date-fns"
+import { toZonedTime } from 'date-fns-tz'
+
+const timeZone = 'America/Los_Angeles'
 
 export const convertToDate = (dbDate: string, formatString: string = 'yyyy-MM-dd hh:mm aaaa'): string => {
   try {
@@ -11,7 +14,11 @@ export const convertToDate = (dbDate: string, formatString: string = 'yyyy-MM-dd
 
 export const isDateToday = (dbDate: string): boolean => {
   try {
-    return isToday(dbDate)
+    const now = new Date()
+    const userNow = toZonedTime(now, timeZone)
+    const entryDate = toZonedTime(new Date(dbDate), timeZone)
+    
+    return isSameDay(entryDate, userNow)
   } catch(error) {
     console.error(error)
     return false
