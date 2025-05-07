@@ -63,7 +63,7 @@ export function EntryDialog({
                       <div className="p-[10px]">
                         <Card className="shadow-none">
                           <CardContent className="flex aspect-4/3 items-center justify-center p-4">
-                            <Image src={image.image_url} alt={`image-${index}`} className="w-full h-full object-cover" width={400} height={300} />
+                            <Image src={image.image_url} alt={`image-${index}`} className="w-full h-full object-contain" width={400} height={300} />
                           </CardContent>
                         </Card>
                       </div>
